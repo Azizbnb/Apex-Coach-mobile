@@ -20,6 +20,7 @@ export default function LoginScreen() {
   const { signIn, loading } = useAuthStore();
 
   const handleLogin = async () => {
+    if (loading) return;
     setError('');
 
     if (!email.trim() || !password.trim()) {
@@ -29,7 +30,7 @@ export default function LoginScreen() {
 
     try {
       await signIn(email.trim(), password);
-      router.replace('/(tabs)/programme');
+      // Navigation handled by auth guard (index.tsx) when session changes
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Erreur de connexion';

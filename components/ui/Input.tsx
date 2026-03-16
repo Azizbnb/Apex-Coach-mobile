@@ -7,6 +7,7 @@ import {
   type TextInputProps,
 } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { colors } from '@/lib/constants';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -46,8 +47,8 @@ export function Input({
             ${borderColor}
             ${isPassword ? 'pr-12' : ''}
           `}
-          placeholderTextColor="#64748B"
-          selectionColor="#84CC16"
+          placeholderTextColor={colors.black[500]}
+          selectionColor={colors.lime[500]}
           secureTextEntry={isPassword && !showPassword}
           onFocus={(e) => {
             setFocused(true);
@@ -65,9 +66,9 @@ export function Input({
             className="absolute right-3 top-3"
           >
             {showPassword ? (
-              <EyeOff size={20} color="#94A3B8" />
+              <EyeOff size={20} color={colors.black[400]} />
             ) : (
-              <Eye size={20} color="#94A3B8" />
+              <Eye size={20} color={colors.black[400]} />
             )}
           </Pressable>
         )}

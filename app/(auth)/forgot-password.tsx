@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth';
 import { ArrowLeft, CheckCircle } from 'lucide-react-native';
+import { colors } from '@/lib/constants';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
@@ -58,14 +59,14 @@ export default function ForgotPasswordScreen() {
             onPress={() => router.back()}
             className="flex-row items-center mt-4 mb-8"
           >
-            <ArrowLeft size={20} color="#84CC16" />
+            <ArrowLeft size={20} color={colors.lime[500]} />
             <Text className="text-apex-lime-500 ml-2 font-medium">Retour</Text>
           </Pressable>
 
           {sent ? (
             /* Success state */
             <View className="flex-1 items-center justify-center">
-              <CheckCircle size={64} color="#10B981" />
+              <CheckCircle size={64} color={colors.success} />
               <Text className="text-2xl font-bold text-white mt-6 mb-2">
                 Email envoyé !
               </Text>

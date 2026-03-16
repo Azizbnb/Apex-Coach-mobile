@@ -16,7 +16,7 @@ const LargeSecureStore = {
     const value = await SecureStore.getItemAsync(key);
     if (value !== null) return value;
 
-    // Check for chunked data
+    // Check for chunked data by iterating until null (not relying on count)
     const chunks: string[] = [];
     let index = 0;
     let chunk = await SecureStore.getItemAsync(`${key}_chunk_${index}`);
@@ -30,63 +30,79 @@ const LargeSecureStore = {
   },
 
   async setItem(key: string, value: string): Promise<void> {
+    // Clean up old data first (both direct key and any chunks)
+    await this._removeAll(key);
+
     if (value.length <= CHUNK_SIZE) {
       await SecureStore.setItemAsync(key, value);
-      // Clean up any old chunks
-      await this._removeChunks(key);
       return;
     }
 
-    // Store in chunks
-    // First remove the direct key if it exists
-    try {
-      await SecureStore.deleteItemAsync(key);
-    } catch {}
-
+    // Store in chunks — write count FIRST for atomicity
     const chunks = value.match(new RegExp(`.{1,${CHUNK_SIZE}}`, 'g')) || [];
+    await SecureStore.setItemAsync(`${key}_chunks`, String(chunks.length));
     await Promise.all(
       chunks.map((chunk, index) =>
         SecureStore.setItemAsync(`${key}_chunk_${index}`, chunk)
       )
     );
-    // Store chunk count for cleanup
-    await SecureStore.setItemAsync(`${key}_chunks`, String(chunks.length));
   },
 
   async removeItem(key: string): Promise<void> {
+    await this._removeAll(key);
+  },
+
+  async _removeAll(key: string): Promise<void> {
+    // Remove the direct key
     try {
       await SecureStore.deleteItemAsync(key);
     } catch {}
-    await this._removeChunks(key);
-  },
 
-  async _removeChunks(key: string): Promise<void> {
-    const countStr = await SecureStore.getItemAsync(`${key}_chunks`);
-    if (!countStr) return;
+    // Remove chunks by iterating until null (resilient to stale count)
+    let index = 0;
+    let exists = await SecureStore.getItemAsync(`${key}_chunk_${index}`);
+    while (exists !== null) {
+      await SecureStore.deleteItemAsync(`${key}_chunk_${index}`);
+      index++;
+      exists = await SecureStore.getItemAsync(`${key}_chunk_${index}`);
+    }
 
-    const count = parseInt(countStr, 10);
-    await Promise.all(
-      Array.from({ length: count }, (_, i) =>
-        SecureStore.deleteItemAsync(`${key}_chunk_${i}`)
-      )
-    );
-    await SecureStore.deleteItemAsync(`${key}_chunks`);
+    // Remove the count key
+    try {
+      await SecureStore.deleteItemAsync(`${key}_chunks`);
+    } catch {}
   },
 };
 
-// Web fallback (for expo web dev)
+/**
+ * Web fallback for expo web dev only.
+ * WARNING: Uses localStorage which is vulnerable to XSS.
+ * This should never be used in production web builds.
+ */
 const WebStorage = {
   getItem: (key: string) => {
     if (typeof window === 'undefined') return null;
-    return window.localStorage.getItem(key);
+    if (__DEV__) {
+      return window.localStorage.getItem(key);
+    }
+    console.warn('WebStorage should not be used in production');
+    return null;
   },
   setItem: (key: string, value: string) => {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(key, value);
+    if (__DEV__) {
+      window.localStorage.setItem(key, value);
+      return;
+    }
+    console.warn('WebStorage should not be used in production');
   },
   removeItem: (key: string) => {
     if (typeof window === 'undefined') return;
-    window.localStorage.removeItem(key);
+    if (__DEV__) {
+      window.localStorage.removeItem(key);
+      return;
+    }
+    console.warn('WebStorage should not be used in production');
   },
 };
 

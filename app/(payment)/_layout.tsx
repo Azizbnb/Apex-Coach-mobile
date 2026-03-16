@@ -1,19 +1,16 @@
 import { Stack } from 'expo-router';
 import { BACKGROUND_COLOR } from '@/lib/constants';
 
-export default function AuthLayout() {
+export default function PaymentLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: BACKGROUND_COLOR },
-        animation: 'slide_from_right',
+        animation: 'slide_from_bottom',
       }}
     >
-      <Stack.Screen name="login" />
-      <Stack.Screen name="signup" />
-      <Stack.Screen name="forgot-password" />
-      <Stack.Screen name="set-password" />
+      <Stack.Screen name="checkout" />
     </Stack>
   );
 }

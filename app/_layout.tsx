@@ -4,19 +4,25 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAuthStore } from '@/stores/auth';
+import { BACKGROUND_COLOR } from '@/lib/constants';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const initialize = useAuthStore((s) => s.initialize);
+  const cleanup = useAuthStore((s) => s.cleanup);
   const initialized = useAuthStore((s) => s.initialized);
 
   useEffect(() => {
-    initialize().then(() => {
+    initialize().finally(() => {
       SplashScreen.hideAsync();
     });
-  }, [initialize]);
+
+    return () => {
+      cleanup();
+    };
+  }, [initialize, cleanup]);
 
   if (!initialized) {
     return null;
@@ -28,7 +34,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#0F172A' },
+          contentStyle: { backgroundColor: BACKGROUND_COLOR },
           animation: 'slide_from_right',
         }}
       >

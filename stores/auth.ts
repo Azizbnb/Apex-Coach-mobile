@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase/client';
-import { profileApi } from '@/lib/api';
+import { profileApi, apiFetch } from '@/lib/api';
 import type { Session, User } from '@supabase/supabase-js';
+import type { Subscription as SupabaseSubscription } from '@supabase/supabase-js';
 import type { UserProfile } from '@/types';
 
 interface AuthState {
@@ -12,12 +13,16 @@ interface AuthState {
   initialized: boolean;
 
   initialize: () => Promise<void>;
+  cleanup: () => void;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   fetchProfile: () => Promise<void>;
   setSession: (session: Session | null) => void;
 }
+
+// Store the auth subscription outside Zustand for cleanup
+let authListener: SupabaseSubscription | null = null;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -28,32 +33,44 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialize: async () => {
     try {
+      // Unsubscribe any previous listener (prevents duplicates on fast refresh)
+      authListener?.unsubscribe();
+
+      // Register listener BEFORE getSession to avoid race condition
+      // (Supabase docs recommended pattern)
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          set({
+            user: session?.user ?? null,
+            session: session ?? null,
+          });
+
+          if (session?.user) {
+            get().fetchProfile().catch(() => {});
+          } else {
+            set({ profile: null });
+          }
+        }
+      );
+      authListener = subscription;
+
+      // Now get the current session
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
       if (session?.user) {
         set({ user: session.user, session });
-        // Fetch profile in background
         get().fetchProfile().catch(() => {});
       }
-
-      // Listen for auth changes
-      supabase.auth.onAuthStateChange((_event, session) => {
-        set({
-          user: session?.user ?? null,
-          session: session ?? null,
-        });
-
-        if (session?.user) {
-          get().fetchProfile().catch(() => {});
-        } else {
-          set({ profile: null });
-        }
-      });
     } finally {
       set({ loading: false, initialized: true });
     }
+  },
+
+  cleanup: () => {
+    authListener?.unsubscribe();
+    authListener = null;
   },
 
   signIn: async (email: string, password: string) => {
@@ -83,8 +100,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   resetPassword: async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw error;
+    // Use branded email flow via Next.js API (Resend) instead of Supabase generic
+    await apiFetch('/auth/send-password-reset', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
   },
 
   fetchProfile: async () => {

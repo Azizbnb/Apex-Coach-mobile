@@ -1,9 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Dumbbell, Play, Apple, TrendingUp, User } from 'lucide-react-native';
-
-const ACTIVE_COLOR = '#84CC16';
-const INACTIVE_COLOR = '#94A3B8';
-const TAB_BAR_BG = '#0F172A';
+import { TAB_BAR } from '@/lib/constants';
 
 export default function TabLayout() {
   return (
@@ -11,15 +8,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: TAB_BAR_BG,
-          borderTopColor: '#1E293B',
+          backgroundColor: TAB_BAR.backgroundColor,
+          borderTopColor: TAB_BAR.borderColor,
           borderTopWidth: 1,
           paddingBottom: 8,
           paddingTop: 8,
-          height: 72,
+          height: TAB_BAR.height,
         },
-        tabBarActiveTintColor: ACTIVE_COLOR,
-        tabBarInactiveTintColor: INACTIVE_COLOR,
+        tabBarActiveTintColor: TAB_BAR.activeColor,
+        tabBarInactiveTintColor: TAB_BAR.inactiveColor,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',

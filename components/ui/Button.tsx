@@ -1,4 +1,5 @@
 import { Pressable, Text, ActivityIndicator, type PressableProps } from 'react-native';
+import { colors } from '@/lib/constants';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 type ButtonSize = 'sm' | 'default' | 'lg';
@@ -63,7 +64,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'primary' ? '#0F172A' : '#84CC16'}
+          color={variant === 'primary' ? colors.black[900] : colors.lime[500]}
         />
       ) : (
         <Text className={`${variantTextStyles[variant]} ${sizeTextStyles[size]}`}>

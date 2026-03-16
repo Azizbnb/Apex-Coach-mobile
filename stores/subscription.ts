@@ -1,8 +1,15 @@
 import { create } from 'zustand';
 import { subscriptionApi } from '@/lib/api';
 import { hasDashboardAccess, hasNutritionAccess } from '@/lib/config/pricing';
-import type { Subscription } from '@/types';
+import type { Subscription, PlanType } from '@/types';
 import type { PlanId } from '@/lib/config/pricing';
+
+// Valid plan IDs for runtime validation
+const VALID_PLAN_IDS: PlanId[] = ['starter', 'coaching', 'coaching_pro'];
+
+function isValidPlanId(value: string | undefined): value is PlanId {
+  return VALID_PLAN_IDS.includes(value as PlanId);
+}
 
 interface SubscriptionState {
   subscription: Subscription | null;
@@ -37,7 +44,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
   planId: () => {
     const sub = get().subscription;
-    return (sub?.subscription_type as PlanId) ?? null;
+    if (!sub) return null;
+    // Validate at runtime to prevent crash in pricing helpers
+    return isValidPlanId(sub.subscription_type) ? sub.subscription_type : null;
   },
 
   hasDashboard: () => {
@@ -50,18 +59,20 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
   isActive: () => {
     const sub = get().subscription;
-    return sub?.status === 'active' || sub?.status === 'canceled';
+    if (!sub) return false;
+    if (sub.status === 'active') return true;
+    // Canceled but still in billing period
+    if (sub.status === 'canceled' && sub.cancel_at_period_end) {
+      return !sub.current_period_end || new Date(sub.current_period_end) > new Date();
+    }
+    return false;
   },
 
   isTrial: () => {
-    const sub = get().subscription;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return !!(sub as any)?.is_trial;
+    return !!get().subscription?.is_trial;
   },
 
   isPromo: () => {
-    const sub = get().subscription;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return !!(sub as any)?.is_promo_subscription;
+    return !!get().subscription?.is_promo_subscription;
   },
 }));

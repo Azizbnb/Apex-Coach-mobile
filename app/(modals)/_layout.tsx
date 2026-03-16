@@ -1,11 +1,12 @@
 import { Stack } from 'expo-router';
+import { BACKGROUND_COLOR } from '@/lib/constants';
 
 export default function ModalLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#0F172A' },
+        contentStyle: { backgroundColor: BACKGROUND_COLOR },
         presentation: 'modal',
         animation: 'slide_from_bottom',
       }}

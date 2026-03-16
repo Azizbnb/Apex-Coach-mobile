@@ -1,13 +1,14 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeView } from '@/components/ui/SafeView';
-import { useAuthStore } from '@/stores/auth';
-import { useSubscriptionStore } from '@/stores/subscription';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { Badge } from '@/components/ui/Badge';
 import { LogOut, Settings, ChevronRight } from 'lucide-react-native';
+import { colors } from '@/lib/constants';
 
 export default function ProfileScreen() {
-  const { user, profile, signOut } = useAuthStore();
-  const planId = useSubscriptionStore((s) => s.planId());
+  const { user, profile, signOut } = useAuth();
+  const { planId } = useSubscription();
 
   return (
     <SafeView>
@@ -17,7 +18,7 @@ export default function ProfileScreen() {
         {/* User info card */}
         <View className="bg-apex-black-800 rounded-xl p-4 mb-4 border border-apex-black-700">
           <Text className="text-white font-semibold text-lg">
-            {(profile as any)?.full_name || 'Utilisateur'}
+            {profile?.full_name || user?.email || 'Utilisateur'}
           </Text>
           <Text className="text-apex-black-400 mt-1">{user?.email}</Text>
           {planId && (
@@ -33,10 +34,10 @@ export default function ProfileScreen() {
         {/* Settings link */}
         <Pressable className="bg-apex-black-800 rounded-xl p-4 mb-4 border border-apex-black-700 flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <Settings size={20} color="#94A3B8" />
+            <Settings size={20} color={colors.black[400]} />
             <Text className="text-white ml-3">Paramètres</Text>
           </View>
-          <ChevronRight size={20} color="#94A3B8" />
+          <ChevronRight size={20} color={colors.black[400]} />
         </Pressable>
 
         {/* Sign out */}
@@ -44,7 +45,7 @@ export default function ProfileScreen() {
           onPress={signOut}
           className="bg-apex-black-800 rounded-xl p-4 mb-4 border border-apex-black-700 flex-row items-center"
         >
-          <LogOut size={20} color="#EF4444" />
+          <LogOut size={20} color={colors.error} />
           <Text className="text-apex-error ml-3 font-medium">
             Se déconnecter
           </Text>

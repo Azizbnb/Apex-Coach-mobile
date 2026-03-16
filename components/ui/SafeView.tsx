@@ -1,4 +1,5 @@
-import { SafeAreaView, type ViewProps } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import type { ViewProps } from 'react-native';
 
 interface SafeViewProps extends ViewProps {
   className?: string;

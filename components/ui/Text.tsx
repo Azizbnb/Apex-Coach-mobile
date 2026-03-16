@@ -16,6 +16,8 @@ const variantStyles: Record<TextVariant, string> = {
   label: 'text-sm font-medium text-apex-black-400',
 };
 
+export { ApexText as Text };
+
 export function ApexText({
   variant = 'body',
   className = '',

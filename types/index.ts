@@ -9,6 +9,9 @@ export interface User {
 export interface UserProfile {
   id: string
   user_id: string
+  full_name?: string
+  phone?: string
+  date_of_birth?: string
   goal: 'weight_loss' | 'muscle_gain' | 'maintenance' | 'endurance'
   level: 'beginner' | 'intermediate' | 'advanced'
   weight: number

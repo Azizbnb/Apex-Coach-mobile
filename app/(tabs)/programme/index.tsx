@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeView } from '@/components/ui/SafeView';
 import { useProgramStore } from '@/stores/program';
 import { useSubscriptionStore } from '@/stores/subscription';
+import { colors } from '@/lib/constants';
 
 export default function ProgrammeScreen() {
   const { program, loading, fetch } = useProgramStore();
@@ -17,7 +18,7 @@ export default function ProgrammeScreen() {
     return (
       <SafeView>
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#84CC16" />
+          <ActivityIndicator size="large" color={colors.lime[500]} />
           <Text className="text-apex-black-400 mt-4">Chargement...</Text>
         </View>
       </SafeView>
