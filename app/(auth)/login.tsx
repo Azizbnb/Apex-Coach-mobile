@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
     try {
       await signIn(email.trim(), password);
-      // Navigation handled by auth guard (index.tsx) when session changes
+      router.replace('/(tabs)/programme');
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Erreur de connexion';

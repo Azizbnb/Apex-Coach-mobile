@@ -1,4 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
+import { router } from 'expo-router';
 import { SafeView } from '@/components/ui/SafeView';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -42,7 +43,7 @@ export default function ProfileScreen() {
 
         {/* Sign out */}
         <Pressable
-          onPress={signOut}
+          onPress={async () => { await signOut(); router.replace('/(auth)/login'); }}
           className="bg-apex-black-800 rounded-xl p-4 mb-4 border border-apex-black-700 flex-row items-center"
         >
           <LogOut size={20} color={colors.error} />
