@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { router } from 'expo-router';
 import { SafeView } from '@/components/ui/SafeView';
 
 /**
