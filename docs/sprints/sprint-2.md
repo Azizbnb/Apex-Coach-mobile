@@ -6,21 +6,33 @@
 
 ---
 
-### S2-T00: Setup Jest + react-native-testing-library (PRÉREQUIS MR2)
+### S2-T00: Setup Jest + ESLint + Prettier (PRÉREQUIS MR2 — bloquant absolu)
 
 - **Statut :** todo
-- **Estimation :** S (~80 LOC, low)
-- **Dépendances :** aucune (priorité 1 absolue — sans ce ticket, MR2 échoue à STEP 6 sur `npx jest`)
-- **Fichiers :** `package.json` (devDependencies + scripts), `jest.config.js`, `jest.setup.ts`, `__tests__/components/ui/Button.test.tsx` (smoke test)
-- **Critères d'acceptance :**
-  - [ ] devDependencies ajoutées : `jest`, `jest-expo`, `@testing-library/react-native`, `@types/jest`, `react-test-renderer` (version compatible RN 0.83 / React 19)
+- **Estimation :** M (~150 LOC, low)
+- **Dépendances :** aucune (priorité 1 absolue — sans ce ticket, MR2 échoue à STEP 6 sur `npx jest` ET `npx eslint`, et marque `mr2-blocked`)
+- **Fichiers :** `package.json` (devDependencies + scripts), `jest.config.js`, `jest.setup.ts`, `__tests__/components/ui/Button.test.tsx`, `.eslintrc.js`, `.eslintignore`, `.prettierrc.js`
+- **Critères d'acceptance — Jest :**
+  - [ ] devDependencies : `jest`, `jest-expo`, `@testing-library/react-native`, `@types/jest`, `react-test-renderer` (versions compatibles RN 0.83 / React 19)
   - [ ] `jest.config.js` avec `preset: 'jest-expo'`, `transformIgnorePatterns` pour RN/Expo/Supabase, `moduleNameMapper` pour `@/*`, `setupFilesAfterEach: ['<rootDir>/jest.setup.ts']`
   - [ ] `jest.setup.ts` avec mocks globaux : `expo-router`, `expo-secure-store`, `@supabase/supabase-js`
-  - [ ] Scripts `package.json` : `"test": "jest"`, `"test:watch": "jest --watch"`, `"test:coverage": "jest --coverage"`
   - [ ] 1 smoke test `__tests__/components/ui/Button.test.tsx` qui rend `<Button label="Test" />` et passe vert
-  - [ ] `npx jest --silent` retourne `0` en local
-  - [ ] `npx tsc --noEmit` reste vert (les types Jest ne cassent rien)
-- **Notes :** Référence template du skill [`apex-mobile-test`](../../.claude/skills/apex-mobile-test/SKILL.md) section "Setup Jest". Sans ce ticket, MR2 hit `mr2-blocked` au 1er run.
+  - [ ] Scripts : `"test": "jest"`, `"test:watch": "jest --watch"`, `"test:coverage": "jest --coverage"`
+  - [ ] `npx jest --silent` retourne `0`
+- **Critères d'acceptance — ESLint :**
+  - [ ] devDependencies : `eslint`, `eslint-config-expo` (preset officiel Expo 55 + RN), `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`
+  - [ ] `.eslintrc.js` avec `extends: ['expo']`, parser TS, règles spécifiques projet (no `as any` interdit, no `console.log` warning, react-hooks/rules-of-hooks error)
+  - [ ] `.eslintignore` exclut `node_modules`, `.expo`, `dist`, `web-build`
+  - [ ] Script : `"lint": "eslint . --ext .ts,.tsx"`, `"lint:fix": "eslint . --ext .ts,.tsx --fix"`
+  - [ ] `npx eslint . --ext .ts,.tsx` retourne `0` (zéro warning sur le code Sprint 1 existant — corriger sinon)
+- **Critères d'acceptance — Prettier :**
+  - [ ] devDependencies : `prettier`, `eslint-config-prettier` (désactive règles ESLint conflictuelles)
+  - [ ] `.prettierrc.js` aligné avec le web (singleQuote, trailingComma all, printWidth 100, semi true)
+  - [ ] Script : `"format": "prettier --write ."`, `"format:check": "prettier --check ."`
+- **Critères d'acceptance — global :**
+  - [ ] `npx tsc --noEmit` reste vert
+  - [ ] `npm test && npm run lint && npm run format:check` tous verts en chaîne
+- **Notes :** Référence templates `.claude/skills/apex-mobile-test/SKILL.md`. **Sans ce ticket complet, MR2 + MR4 hit `mr2-blocked` au 1er run.** À traiter en priorité absolue lundi 11 mai par MR2.
 
 ---
 

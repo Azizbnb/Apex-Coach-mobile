@@ -1,0 +1,23 @@
+# Normalisation cross-platform — alignement avec le repo web Apex-Coach
+# Tous les fichiers texte sont LF, indépendamment de la plateforme du dev (Windows/Linux/macOS)
+* text=auto eol=lf
+
+# Binaires explicites (ne pas normaliser)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.mp4 binary
+*.mov binary
+*.pdf binary
+*.zip binary
+*.jks binary
+*.p8 binary
+*.p12 binary
+*.keystore binary
