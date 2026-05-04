@@ -1,8 +1,9 @@
 # CLAUDE.md - Apex Coach Mobile (Expo)
 
-> **Version :** 1.1.0 — Sprint 1 audité et corrigé
+> **Version :** 1.2.0 — Audit Phase 0 (alignement spec v2 + pricing web)
 > **Parent :** Ce projet est le client mobile natif d'Apex Coach. Le backend est documenté dans `C:\Users\benta\Apex-Coach\CLAUDE.md`.
-> **Spec directrice :** `C:\Users\benta\Apex-Coach\docs\MOBILE_APP_TECHNICAL_SPEC.md`
+> **Spec directrice :** `C:\Users\benta\Apex-Coach\docs\MOBILE_APP_TECHNICAL_SPEC_v2.md` (v2.0, 14 avril 2026)
+> **Backlog :** `apex-coach-mobile/docs/sprints/backlog.md`
 
 ---
 
@@ -16,24 +17,38 @@ App mobile Expo qui consomme le même backend Next.js/Supabase que le web. **Zé
 |-----------|-------------|---------|
 | **Framework** | Expo (managed workflow) | 55.0.6 |
 | **Runtime** | React Native | 0.83.2 |
+| **React** | React | 19.2.0 |
 | **Routing** | Expo Router (file-based) | 55.0.5 |
 | **Langage** | TypeScript | 5.9 |
 | **Auth** | @supabase/supabase-js + expo-secure-store | 2.99.2 |
 | **State** | Zustand | 5.0.12 |
 | **UI/Styling** | NativeWind (Tailwind RN) | 4.2.3 |
+| **Animations** | react-native-reanimated | 4.2.2 |
 | **Formulaires** | React Hook Form + Zod | 7.71 / 4.3 |
 | **Icons** | lucide-react-native | 0.577 |
 | **Navigation** | Bottom Tabs + Stack + Modals | — |
 
-### Modèle économique (Reader Model)
+### Modèle économique (App gratuite, modèle Netflix)
 
-Paiement 100% web via Stripe — 0% commission Apple/Google. L'app ouvre le navigateur système pour le checkout.
+> **Décision 04/05/2026 (finale) :** app **100% gratuite** sur iOS + Android. **Aucun paiement in-app, aucune mention de prix**. L'inscription gratuite + le trial 7j sont possibles depuis l'app, mais **toute conversion payante se fait sur `apexcoach.app`** (Stripe). Commission Apple/Google = **0%**. Pricing préservé partout : 14,90€ Coaching / 24,90€ Coaching Pro.
 
-| Plan | Prix | Dashboard | Nutrition |
-|------|------|-----------|-----------|
-| Starter | 29€ one-time | Non | Non |
-| Coaching | 14,90€/mois | Oui | Non |
-| Coaching Pro | 24,90€/mois | Oui | Oui |
+**Architecture du modèle :**
+- L'app est un **client natif** pour utilisateurs ayant un compte Supabase (qu'ils soient en trial, abonnés ou en attente de paiement)
+- **Welcome non-connecté** : « Bienvenue sur Apex Coach. Crée ton compte sur apexcoach.app pour commencer ton essai gratuit. » + CTA `WebBrowser.openBrowserAsync('https://www.apexcoach.app/?utm_source=ios_app')`
+- **Signup + trial gratuit** : possibles depuis l'app (POST `/api/auth/create-trial-account`) — pas de paiement, donc Apple OK
+- **Codes promo (partenariat)** : redemption possible depuis l'app (POST `/api/promo/validate`) — gratuit pour l'utilisateur, donc Apple OK
+- **Paywall mobile** : strictement informational. Quand le trial expire ou un user gratuit tape sur une feature payante, l'app affiche : « Continue ton abonnement sur apexcoach.app » + CTA browser. **Aucun bouton "S'abonner X €"** dans l'app.
+
+| Plan | Prix (web uniquement) | Dashboard | Nutrition |
+|------|-----------------------|-----------|-----------|
+| **Coaching** | 14,90€/mois ou 99€/an | Oui | Non |
+| **Coaching Pro** | 24,90€/mois ou 199€/an | Oui | Oui |
+
+> **Starter** : supprimé du `PlanId` mobile (alignement strict web). Plus aucune trace dans le code mobile.
+
+> **Tracking d'attribution mobile** : Apple Search Ads Attribution API + UTM `source=ios_app|android_app` sur les liens externes — pour mesurer le ROI funnel install → paiement web.
+
+> **App Store name (ASO)** : « Apex Coach — Coaching IA Personnalisé » (30 chars titre + sous-titre 30 chars).
 
 ---
 
@@ -359,14 +374,60 @@ EXPO_PUBLIC_API_URL          # https://apexcoach.app (backend Next.js)
 
 ---
 
-## 12. Planning Sprint (référence)
+## 11.bis Skills & Routines mobile (depuis 04/05/2026)
+
+### Skills (`.claude/skills/`)
+
+10 skills mobile spécifiques au projet, à charger selon le domaine de travail :
+
+| Skill | Quand l'activer |
+|-------|-----------------|
+| `apex-mobile-dev` (fondation) | **Toujours actif** sur ce repo — règles critiques + stack + patterns |
+| `apex-mobile-design` | Style, NativeWind, animations, composants UI |
+| `apex-mobile-navigation` | Expo Router, tabs, modals, deep links, auth guard |
+| `apex-mobile-state` | Zustand stores, convenience hooks, sélecteurs stables |
+| `apex-mobile-api` | Supabase RN direct, apiFetch Bearer, sync types web |
+| `apex-mobile-feature-spec` | Spec d'une feature avant implémentation |
+| `apex-mobile-debug` | Bug Sentry, EAS Build error, Metro stacktrace, plan AVANT fix |
+| `apex-mobile-test` | Jest RN + Maestro e2e |
+| `apex-mobile-security-review` | Audit avant merge (12 règles critiques mobile + RGPD) |
+| `apex-mobile-paywall` | Paywall info, WebBrowser + UTM, attribution Apple Search Ads |
+
+Skills web réutilisables : `apex-rgpd`, `apex-copywriting`, `apex-migration`.
+
+### Routines (`docs/routines/`)
+
+7 routines de **développement mobile** orchestrées via `RemoteTrigger` (env code.claude.ai). Cycle vertueux Lun→Dim, 24/7. Voir [`docs/routines/README.md`](docs/routines/README.md) pour la vue d'ensemble.
+
+| Routine | Schedule | Rôle |
+|---------|----------|------|
+| MR1 Sprint Planner | Lun 05:00 | Lit backlog → fragmente en issues GitHub |
+| MR2 Auto-Implementer | Lun→Jeu 08:00+16:00 | Prend 1 issue → ouvre PR (2 PR/jour) |
+| MR3 Visual QA | sur PR `auto-qa` | Screenshots Expo Web + checklist design |
+| MR4 Code Review | sur ouverture PR | Audit HIGH/MED/LOW (sécu + qualité) |
+| MR5 EAS Build | Ven 18:00 | Build preview iOS+Android (submit manuel par toi) |
+| MR6 Sentry Triage | Quotidien 07:00 | Plan AVANT fix sur issues mobile P1>P2>P3 |
+| MR7 Web Sync | Dim 22:00 | PR `chore: sync from web` si drift fichiers partagés |
+
+> **Indépendant des routines vidéo** R1-R4 du repo web (parallèle, pas de collision).
+
+### Pré-requis techniques
+
+Voir [`docs/routines/README.md`](docs/routines/README.md) §"Pré-requis techniques".
+
+---
+
+## 12. Planning Sprint (référence — aligné spec v2.0)
 
 | Sprint | Contenu | Statut |
 |--------|---------|--------|
 | **Sprint 1** | Fondations (Expo, auth, navigation, stores, UI, types) | **Terminé** |
-| Sprint 2 | Dashboard + Programme + Workout actif + Nutrition | Prochain |
-| Sprint 3 | Onboarding + Trial + Questionnaire + Paiement Reader | — |
-| Sprint 4 | Notifications + Bilan + Polish + Publication stores | — |
+| Sprint 2 | Dashboard + Programme + Workout actif + Nutrition + Liens affiliés + Banners | Prochain |
+| Sprint 3 | Onboarding + Trial + Questionnaire 27 micro-steps + Codes Promo + Paywall + Reader | — |
+| Sprint 4 | Notifications push + Bilan hebdo + Settings (jeûne, delete) + Reviews + Polish + Sentry | — |
+| Sprint 5 | Publication stores (TestFlight + Play Internal + ASO + .well-known + buffer review) | — |
+
+**Backlog détaillé** : `docs/sprints/backlog.md` + `docs/sprints/sprint-{2..5}.md`
 
 ---
 
@@ -412,5 +473,7 @@ Tous les bugs identifiés lors de l'audit Sprint 1 ont été corrigés :
 
 | Date | Version | Changements |
 |------|---------|-------------|
+| 04/05/2026 | 1.3.0 | **Setup complet écosystème mobile** : 10 skills (.claude/skills/apex-mobile-*) + 7 routines (docs/routines/MR1-MR7) + backlog Sprint 2-5 (53 tickets) + AUDIT_PHASE_0.md. Modèle économique = **App gratuite Netflix** (paiement uniquement web Stripe, 0% commission stores). Cycle vertueux 24/7 prêt à activer. |
+| 03/05/2026 | 1.2.0 | Audit Phase 0 (skills + routines mobile) : ref spec corrigée (v2.0), pricing aligné (Starter deprecated mais conservé legacy `hidden`), stack complète (React 19.2, reanimated 4.2.2), 5 sprints (vs 4), pointeur backlog. |
 | 16/03/2026 | 1.1.0 | Audit Sprint 1 complet : 13 bugs corrigés (critiques + hauts + moyens), 4 nouveaux composants UI, convenience hooks, lib placeholders, Text export, couleurs alignées web. |
 | 16/03/2026 | 1.0.0 | Sprint 1 terminé : Init Expo 55, auth Supabase + SecureStore, navigation 5 tabs + auth + modals, 4 Zustand stores, 7 composants UI, API wrapper, 15+ fichiers partagés du web, progressive unlock. |
