@@ -2,7 +2,25 @@
 
 > **Spec source :** `Apex-Coach/docs/MOBILE_APP_TECHNICAL_SPEC_v2.md` §18 Sprint 2 (Jours 6-12, ~7j)
 > **Livrable :** dashboard complet avec programme, entraînement actif, nutrition, liens affiliés, banners.
-> **Total tickets :** 14
+> **Total tickets :** 15 (S2-T00 Setup Jest ajouté en tête, prérequis MR2)
+
+---
+
+### S2-T00: Setup Jest + react-native-testing-library (PRÉREQUIS MR2)
+
+- **Statut :** todo
+- **Estimation :** S (~80 LOC, low)
+- **Dépendances :** aucune (priorité 1 absolue — sans ce ticket, MR2 échoue à STEP 6 sur `npx jest`)
+- **Fichiers :** `package.json` (devDependencies + scripts), `jest.config.js`, `jest.setup.ts`, `__tests__/components/ui/Button.test.tsx` (smoke test)
+- **Critères d'acceptance :**
+  - [ ] devDependencies ajoutées : `jest`, `jest-expo`, `@testing-library/react-native`, `@types/jest`, `react-test-renderer` (version compatible RN 0.83 / React 19)
+  - [ ] `jest.config.js` avec `preset: 'jest-expo'`, `transformIgnorePatterns` pour RN/Expo/Supabase, `moduleNameMapper` pour `@/*`, `setupFilesAfterEach: ['<rootDir>/jest.setup.ts']`
+  - [ ] `jest.setup.ts` avec mocks globaux : `expo-router`, `expo-secure-store`, `@supabase/supabase-js`
+  - [ ] Scripts `package.json` : `"test": "jest"`, `"test:watch": "jest --watch"`, `"test:coverage": "jest --coverage"`
+  - [ ] 1 smoke test `__tests__/components/ui/Button.test.tsx` qui rend `<Button label="Test" />` et passe vert
+  - [ ] `npx jest --silent` retourne `0` en local
+  - [ ] `npx tsc --noEmit` reste vert (les types Jest ne cassent rien)
+- **Notes :** Référence template du skill [`apex-mobile-test`](../../.claude/skills/apex-mobile-test/SKILL.md) section "Setup Jest". Sans ce ticket, MR2 hit `mr2-blocked` au 1er run.
 
 ---
 
