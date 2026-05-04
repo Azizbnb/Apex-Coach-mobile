@@ -1,6 +1,6 @@
 # Claude Code Routine MR4 — Code Review Mobile
 
-> **Version :** 1.0.0 — 04/05/2026
+> **Version :** 1.1.0 — 04/05/2026 (v1.0 → v1.1 : retrait de `--max-warnings 0`, warnings sur fichiers partagés web tolérés en attendant sync MR7)
 > **Schedule :** déclenchée sur ouverture de PR (toute PR du repo, pas seulement label `auto-qa`).
 > **Routine name :** `apex-mobile-code-review`
 > **Output :** 1 commentaire structuré "Audit MR4" sur la PR, sections HIGH / MED / LOW, recommandation merge.
@@ -92,12 +92,14 @@ cd /repos/apex-coach-mobile
 git checkout origin/{HEAD_BRANCH}
 npm ci
 npx tsc --noEmit > /tmp/tsc.log 2>&1; TSC=$?
-npx eslint . --ext .ts,.tsx --max-warnings 0 > /tmp/eslint.log 2>&1; ESLINT=$?
+npx eslint . --ext .ts,.tsx > /tmp/eslint.log 2>&1; ESLINT=$?  # v1.1 : pas de --max-warnings 0
 npx jest --silent > /tmp/jest.log 2>&1; JEST=$?
 
 Si TSC ≠ 0 → HIGH "tsc échoue, voir log"
-Si ESLINT ≠ 0 → HIGH (même si MR2 a poussé green, double-vérif)
+Si ESLINT ≠ 0 → HIGH (vraies erreurs uniquement, warnings tolérés depuis v1.1)
 Si JEST ≠ 0 → HIGH
+
+> **v1.1 — note ESLint :** les warnings sur les fichiers partagés web (`lib/affiliate/*.ts`, `types/index.ts`, etc.) ne sont plus escaladés en HIGH. Ces fichiers sont copiés du web et seront re-synchronisés par MR7 quand le web aura été corrigé.
 
 ---
 
