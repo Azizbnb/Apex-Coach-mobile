@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { subscriptionApi } from '@/lib/api';
 import { hasDashboardAccess, hasNutritionAccess } from '@/lib/config/pricing';
-import type { Subscription, PlanType } from '@/types';
+import type { Subscription } from '@/types';
 import type { PlanId } from '@/lib/config/pricing';
 
 // Valid plan IDs for runtime validation
