@@ -1,7 +1,9 @@
 # Claude Code Routine MR4 — Code Review Mobile
 
-> **Version :** 1.1.0 — 04/05/2026 (v1.0 → v1.1 : retrait de `--max-warnings 0`, warnings sur fichiers partagés web tolérés en attendant sync MR7)
-> **Schedule :** déclenchée sur ouverture de PR (toute PR du repo, pas seulement label `auto-qa`).
+> **Version :** 1.2.0 — 04/05/2026 (v1.1 → v1.2 : cron 24×/jour → 2×/jour Lun-Jeu synchronisé avec MR2, économie quota 95%)
+> **Schedule :** `30 6,14 * * 1-4` — Lun→Jeu 06:30 + 14:30 UTC (= 08:30 + 16:30 Paris CEST). 30 min après chaque cron MR2 pour reviewer la PR fraîchement ouverte.
+> **Fréquence :** 8 runs/semaine (vs 168 runs/semaine en v1.1) — décision pour rester dans le quota Anthropic 15 routines/jour avec marge.
+> **Latence max** : ~30-60 min entre l'ouverture de PR par MR2 et le commentaire MR4.
 > **Routine name :** `apex-mobile-code-review`
 > **Output :** 1 commentaire structuré "Audit MR4" sur la PR, sections HIGH / MED / LOW, recommandation merge.
 > **Architecture :** Bash + git diff + skills sécurité/dev. Multi-fichiers fragmentés (1 commentaire avec sections concises).
