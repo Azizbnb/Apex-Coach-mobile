@@ -35,5 +35,5 @@ jest.mock('@supabase/supabase-js', () => ({
   })),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+// react-native-reanimated est mocké via __mocks__/react-native-reanimated.js
+jest.mock('react-native-reanimated');
