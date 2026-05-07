@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Pressable, Linking, RefreshControl } from 'react-native';
+import { View, Text, FlatList, Pressable, RefreshControl } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { Lock, ExternalLink, Apple } from 'lucide-react-native';
 import { SafeView } from '@/components/ui/SafeView';
 import { Button } from '@/components/ui/Button';
@@ -27,7 +28,7 @@ function NutritionSkeleton() {
 }
 
 function FeatureGate() {
-  const openPaywall = useCallback(() => Linking.openURL(PAYWALL_URL), []);
+  const openPaywall = useCallback(() => WebBrowser.openBrowserAsync(PAYWALL_URL), []);
 
   return (
     <View className="flex-1 items-center justify-center px-6">
@@ -42,7 +43,12 @@ function FeatureGate() {
       <Button variant="primary" onPress={openPaywall}>
         Voir mes options sur apexcoach.app
       </Button>
-      <Pressable onPress={openPaywall} className="flex-row items-center gap-1 mt-3">
+      <Pressable
+        onPress={openPaywall}
+        accessibilityRole="link"
+        accessibilityLabel="Ouvrir apexcoach.app dans le navigateur"
+        className="flex-row items-center gap-1 mt-3"
+      >
         <ExternalLink size={12} color={colors.black[400]} />
         <Text className="text-apex-black-400 text-xs">apexcoach.app</Text>
       </Pressable>
