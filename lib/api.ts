@@ -10,6 +10,7 @@ import type {
   UserProfile,
   Subscription,
   NutritionPreferences,
+  NutritionPlan,
 } from '@/types';
 
 // ============================================
@@ -159,7 +160,7 @@ export const nutritionApi = {
     return data;
   },
 
-  async getNutritionPlan() {
+  async getNutritionPlan(): Promise<NutritionPlan | null> {
     const userId = await getCurrentUserId();
     const { data, error } = await supabase
       .from('programs')
@@ -169,7 +170,7 @@ export const nutritionApi = {
       .limit(1)
       .maybeSingle();
     if (error) throw new ApiError(500, error.message);
-    return data?.nutrition_plan || null;
+    return (data?.nutrition_plan as NutritionPlan) || null;
   },
 };
 
