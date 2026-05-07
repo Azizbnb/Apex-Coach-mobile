@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo[^/]*|@expo|@react-navigation|@supabase|nativewind|react-native-reanimated|react-native-gesture-handler|react-native-svg|lucide-react-native|react-native-css-interop|zustand)/)',
+    'node_modules/(?!(react-native|@react-native|expo[^/]*|@expo|@react-navigation|@supabase|nativewind|react-native-css-interop|react-native-reanimated|react-native-worklets|react-native-gesture-handler|react-native-svg|lucide-react-native|zustand)/)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
