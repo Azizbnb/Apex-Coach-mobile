@@ -2,7 +2,7 @@
 
 > **Spec source :** `Apex-Coach/docs/MOBILE_APP_TECHNICAL_SPEC_v2.md` §18 Sprint 2 (Jours 6-12, ~7j)
 > **Livrable :** dashboard complet avec programme, entraînement actif, nutrition, liens affiliés, banners.
-> **Total tickets :** 15 (S2-T00 Setup Jest ajouté en tête, prérequis MR2)
+> **Total tickets :** 19 (S2-T00 Setup Jest ajouté en tête, prérequis MR2 ; S2-T15 à T18 ajoutés en follow-up des PRs #7-#10 le 2026-05-07)
 
 ---
 
@@ -177,3 +177,60 @@
 - **Dépendances :** aucune
 - **Fichiers :** `components/subscription/PromoExpiryBanner.tsx`
 - **Notes :** affiché si `subscription.isPromo`. Banner orange si J-7 avant expiration.
+
+---
+
+## Follow-ups PRs #7-#10 (ajoutés 2026-05-07 après merge)
+
+### S2-T15: Extraire `FeatureGate` vers `components/subscription/FeatureGate.tsx`
+
+- **Statut :** todo
+- **Estimation :** S (~80 LOC, low)
+- **Dépendances :** aucune (S2-T11 mergée)
+- **Fichiers :** `components/subscription/FeatureGate.tsx` (nouveau), `app/(tabs)/nutrition/index.tsx` (import + usage)
+- **Critères d'acceptance :**
+  - [ ] Composant exporté générique avec props `{ icon, title, description, ctaUrl, ctaLabel }`
+  - [ ] `app/(tabs)/nutrition/index.tsx` ramené sous 150 lignes après extraction
+  - [ ] Le composant utilise `WebBrowser.openBrowserAsync` pour ouvrir `ctaUrl`
+  - [ ] `accessibilityRole="link"` + `accessibilityLabel` sur le `Pressable` secondaire
+  - [ ] 1 test unitaire (rendu + appel `openBrowserAsync` au tap)
+- **Notes :** résout le MED-2 de la PR #10 (164 lignes > seuil anti-troncature 150). Composant prévu par `MOBILE_APP_TECHNICAL_SPEC_v2.md` §3 — sera réutilisé par `PaywallScreen`, `PromoExpiryBanner`, et tout futur gating Pro.
+
+### S2-T16: `MealPlanCard` ouvre le détail du repas (pas seulement le 1er aliment)
+
+- **Statut :** todo
+- **Estimation :** S (~80 LOC, low)
+- **Dépendances :** aucune (S2-T11 mergée)
+- **Fichiers :** `components/nutrition/MealDetail.tsx` (nouveau modal), `app/(tabs)/nutrition/index.tsx` (state + onPress), `components/nutrition/MealPlanCard.tsx` (signature inchangée)
+- **Critères d'acceptance :**
+  - [ ] Nouveau modal `MealDetail` qui affiche le repas complet (heure + nom + tous les aliments avec leurs macros)
+  - [ ] Tap sur un aliment dans `MealDetail` → ouvre `RecipeDetail` du-dit aliment
+  - [ ] `app/(tabs)/nutrition/index.tsx:onPress` ouvre `MealDetail(meal)` au lieu de `setSelectedFood(meal.foods[0])`
+  - [ ] 1 test unitaire `MealDetail` (rendu + tap aliment → onPress callback)
+- **Notes :** résout LOW-2 de la PR #10. UX dégradée actuelle si plusieurs aliments par repas (seul `foods[0]` est accessible).
+
+### S2-T17: Tests unitaires `RecipeDetail` + `ShoppingList`
+
+- **Statut :** todo
+- **Estimation :** S (~120 LOC, low)
+- **Dépendances :** aucune (S2-T11 mergée)
+- **Fichiers :** `__tests__/components/nutrition/RecipeDetail.test.tsx` (nouveau), `__tests__/components/nutrition/ShoppingList.test.tsx` (nouveau)
+- **Critères d'acceptance :**
+  - [ ] `RecipeDetail` : 4 tests (modal masqué si `food=null`, rendu macros, calories, bouton fermeture)
+  - [ ] `ShoppingList` : 5 tests (modal masqué si `visible=false`, agrégation quantités par nom, compteur ingrédients, ordre alphabétique, bouton fermeture)
+  - [ ] Tous les tests passent (`./node_modules/.bin/jest --silent components/nutrition`)
+- **Notes :** résout LOW-1 de la PR #10. Aligne la couverture avec `MacroSummary` et `MealPlanCard` qui ont déjà 7 tests chacun.
+
+### S2-T18: Tech debt cosmétique — LOWs PRs #8 et #9
+
+- **Statut :** todo
+- **Estimation :** S (~30 LOC, low)
+- **Dépendances :** aucune
+- **Fichiers :** `components/programme/WeekCard.tsx`, `components/programme/__tests__/WeekCard.test.tsx`, `__mocks__/react-native-reanimated.js`
+- **Critères d'acceptance :**
+  - [ ] Retirer le `as never` ligne 34 de `WeekCard.tsx` — typer correctement la route Expo Router (utiliser `Href` du package `expo-router`)
+  - [ ] Déplacer `components/programme/__tests__/WeekCard.test.tsx` vers `__tests__/components/programme/WeekCard.test.tsx` (convention CLAUDE.md mobile §test location)
+  - [ ] Documenter la surface du mock `__mocks__/react-native-reanimated.js` (entête JSDoc listant `useAnimatedStyle`, `useSharedValue`, `withTiming`, `Easing`)
+  - [ ] `npx jest --silent` toujours vert (15/15 ProgressRing + WeekCard)
+  - [ ] `npx eslint . --ext .ts,.tsx` zéro nouvelle erreur
+- **Notes :** résout LOW-1 et LOW-2 de la PR #8 (WeekCard) + LOW-1 de la PR #9 (mock surface). Bundle pour économiser un slot MR2.

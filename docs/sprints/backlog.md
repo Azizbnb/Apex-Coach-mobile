@@ -34,7 +34,7 @@ Chaque ticket suit ce gabarit (parsable par MR1) :
 | Sprint | Fichier | Thème | Tickets | Statut |
 |--------|---------|-------|---------|--------|
 | 1 | — | Fondations Expo + auth + nav + UI + stores | — | **Terminé (16/03/2026)** |
-| 2 | [sprint-2.md](sprint-2.md) | Dashboard + Programme + Workout actif + Nutrition + Affiliés + Banners | 15 tickets (S2-T00 Setup Jest ajouté en tête, prérequis MR2) | À planifier |
+| 2 | [sprint-2.md](sprint-2.md) | Dashboard + Programme + Workout actif + Nutrition + Affiliés + Banners | 19 tickets (S2-T00 Setup Jest + T15-T18 follow-up PRs #7-#10) | À planifier |
 | 3 | [sprint-3.md](sprint-3.md) | Onboarding + Trial + Questionnaire 27 steps + Codes Promo + Paywall info + Tutoriel | 17 tickets (Reader/IAP supprimés, modèle Netflix : S3-T19 = welcome hero, S3-T20 = attribution, S3-T24 = tutoriel) | À planifier |
 | 4 | [sprint-4.md](sprint-4.md) | Notifications push + Bilan + Settings + Reviews + Polish + Sentry | 14 tickets | À planifier |
 | 5 | [sprint-5.md](sprint-5.md) | Publication TestFlight + Play Internal + ASO + .well-known + buffer review | 8 tickets | À planifier |
