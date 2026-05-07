@@ -1,0 +1,192 @@
+name: Notify feature merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [claude/main]
+
+jobs:
+  notify:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'feature/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Send merge notification email
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_TO: abdelaziz.tbn@gmail.com
+          NOTIFY_FROM: 'Apex Coach Mobile <noreply@apexcoach.app>'
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_ADDITIONS: ${{ github.event.pull_request.additions }}
+          PR_DELETIONS: ${{ github.event.pull_request.deletions }}
+          PR_FILES_CHANGED: ${{ github.event.pull_request.changed_files }}
+          PR_MERGED_AT: ${{ github.event.pull_request.merged_at }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import os
+          import re
+          import urllib.request
+          from datetime import datetime
+
+          RESEND_API_KEY = os.environ["RESEND_API_KEY"]
+          NOTIFY_TO = os.environ["NOTIFY_TO"]
+          NOTIFY_FROM = os.environ["NOTIFY_FROM"]
+
+          title = os.environ["PR_TITLE"]
+          number = os.environ["PR_NUMBER"]
+          url = os.environ["PR_URL"]
+          body = os.environ.get("PR_BODY") or ""
+          branch = os.environ["PR_BRANCH"]
+          author = os.environ["PR_AUTHOR"]
+          additions = os.environ["PR_ADDITIONS"]
+          deletions = os.environ["PR_DELETIONS"]
+          files_changed = os.environ["PR_FILES_CHANGED"]
+          merged_at_raw = os.environ["PR_MERGED_AT"]
+          labels = json.loads(os.environ.get("PR_LABELS") or "[]")
+
+          # Ticket ID extracted from title : "[S2-T07] ..."
+          ticket_match = re.match(r"^\[?([SE]\d+-T\d+)\]?", title)
+          ticket_id = ticket_match.group(1) if ticket_match else "—"
+
+          # Strip ticket prefix from title for cleaner subject
+          clean_title = re.sub(r"^\[?[SE]\d+-T\d+\]?\s*", "", title).strip()
+
+          # Format merge date in FR
+          try:
+              merged_dt = datetime.fromisoformat(merged_at_raw.replace("Z", "+00:00"))
+              merged_str = merged_dt.strftime("%d/%m/%Y à %Hh%M")
+          except Exception:
+              merged_str = merged_at_raw
+
+          # Extract "Changements" section from PR body — best effort
+          changes_lines = []
+          in_changes = False
+          for line in body.split("\n"):
+              stripped = line.strip()
+              if re.match(r"^#+\s*(Changements|Détail|Description)", stripped, re.IGNORECASE):
+                  in_changes = True
+                  continue
+              if in_changes:
+                  if stripped.startswith("#") or stripped.startswith("---"):
+                      break
+                  if stripped.startswith("|") or stripped.startswith("- ") or stripped.startswith("* "):
+                      changes_lines.append(stripped)
+                  if len(changes_lines) >= 8:
+                      break
+
+          changes_html = ""
+          if changes_lines:
+              items = [
+                  re.sub(r"^[-*|]\s*", "", l).strip().rstrip("|").strip()
+                  for l in changes_lines
+                  if not l.startswith("|---") and not l.startswith("| Fichier")
+              ]
+              items = [i for i in items if i and not i.startswith(":---")]
+              if items:
+                  changes_html = "<ul style=\"margin:8px 0 16px 0;padding-left:20px;color:#333\">"
+                  for item in items[:6]:
+                      # Markdown inline code → <code>
+                      item_html = re.sub(r"`([^`]+)`", r"<code style='background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:13px'>\1</code>", item)
+                      changes_html += f"<li style='margin-bottom:6px'>{item_html}</li>"
+                  changes_html += "</ul>"
+
+          label_names = ", ".join(l.get("name", "") for l in labels) or "—"
+
+          subject = f"✅ Apex Mobile · {ticket_id} mergé — {clean_title[:60]}"
+
+          html = f"""<!DOCTYPE html>
+          <html lang="fr">
+          <head><meta charset="utf-8"></head>
+          <body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+            <div style="max-width:560px;margin:0 auto;padding:32px 24px">
+              <div style="background:#fff;border-radius:12px;padding:32px;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+
+                <div style="display:inline-block;background:#dcfce7;color:#16a34a;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:16px">
+                  ✓ FEATURE MERGÉE
+                </div>
+
+                <h1 style="font-size:22px;font-weight:700;color:#0F172A;margin:0 0 8px 0;line-height:1.3">
+                  {clean_title}
+                </h1>
+
+                <p style="color:#64748b;font-size:14px;margin:0 0 24px 0">
+                  Ticket <strong style="color:#0F172A">{ticket_id}</strong> · {merged_str}
+                </p>
+
+                <div style="background:#fafaf9;border-radius:8px;padding:16px;margin-bottom:24px">
+                  <p style="margin:0 0 4px 0;font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">
+                    Ce qui a été ajouté
+                  </p>
+                  {changes_html or '<p style="margin:8px 0 0 0;color:#64748b;font-size:14px;font-style:italic">Voir le détail sur GitHub.</p>'}
+                </div>
+
+                <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+                  <tr>
+                    <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#64748b">Fichiers modifiés</td>
+                    <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#0F172A;text-align:right;font-weight:600">{files_changed}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#64748b">Lignes</td>
+                    <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#0F172A;text-align:right">
+                      <span style="color:#16a34a;font-weight:600">+{additions}</span>
+                      <span style="color:#64748b">·</span>
+                      <span style="color:#dc2626;font-weight:600">−{deletions}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#64748b">Auteur</td>
+                    <td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#0F172A;text-align:right">{author}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;font-size:13px;color:#64748b">Labels</td>
+                    <td style="padding:8px 0;font-size:13px;color:#0F172A;text-align:right">{label_names}</td>
+                  </tr>
+                </table>
+
+                <a href="{url}" style="display:inline-block;background:#84CC16;color:#0F172A;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+                  Voir la PR #{number} sur GitHub →
+                </a>
+
+              </div>
+
+              <p style="text-align:center;color:#94a3b8;font-size:11px;margin:24px 0 0 0;line-height:1.5">
+                Notification automatique envoyée par <strong>Apex Coach Mobile</strong>.<br>
+                Tu reçois cet email parce qu'une PR feature/* a été mergée sur <code>claude/main</code>.
+              </p>
+            </div>
+          </body>
+          </html>"""
+
+          payload = {
+              "from": NOTIFY_FROM,
+              "to": [NOTIFY_TO],
+              "subject": subject,
+              "html": html,
+          }
+
+          req = urllib.request.Request(
+              "https://api.resend.com/emails",
+              data=json.dumps(payload).encode("utf-8"),
+              headers={
+                  "Authorization": f"Bearer {RESEND_API_KEY}",
+                  "Content-Type": "application/json",
+              },
+              method="POST",
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  print(f"Resend OK · status={resp.status} · email_id={json.loads(resp.read()).get('id')}")
+          except urllib.error.HTTPError as e:
+              print(f"Resend ERROR · status={e.code} · body={e.read().decode('utf-8', errors='replace')}")
+              raise
+          PYEOF
