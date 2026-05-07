@@ -16,7 +16,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.apexcoach.mobile",
-      "associatedDomains": ["applinks:apexcoach.app"],
+      "associatedDomains": [
+        "applinks:apexcoach.app"
+      ],
       "infoPlist": {
         "NSCameraUsageDescription": "Pour tes photos de progression",
         "NSPhotoLibraryUsageDescription": "Pour sauvegarder tes photos de progression"
@@ -35,9 +37,16 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "apexcoach.app", "pathPrefix": "/mobile" }
+            {
+              "scheme": "https",
+              "host": "apexcoach.app",
+              "pathPrefix": "/mobile"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -53,7 +62,8 @@
         {
           "backgroundColor": "#0A0E1A"
         }
-      ]
+      ],
+      "expo-web-browser"
     ]
   }
 }

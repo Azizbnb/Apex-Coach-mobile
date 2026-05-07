@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { nutritionApi } from '@/lib/api';
-import type { NutritionPreferences } from '@/types';
+import type { NutritionPreferences, NutritionPlan } from '@/types';
 
 interface NutritionState {
   preferences: NutritionPreferences | null;
-  nutritionPlan: unknown;
+  nutritionPlan: NutritionPlan | null;
   loading: boolean;
 
   fetchPreferences: () => Promise<void>;
