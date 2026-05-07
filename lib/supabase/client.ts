@@ -1,78 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
-import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-
-/**
- * SecureStore adapter for Supabase auth.
- * Handles large tokens by chunking across multiple keys
- * (SecureStore has a 2048 byte limit per item on some platforms).
- */
-const CHUNK_SIZE = 2000;
-
-const LargeSecureStore = {
-  async getItem(key: string): Promise<string | null> {
-    // Try direct read first (most common case)
-    const value = await SecureStore.getItemAsync(key);
-    if (value !== null) return value;
-
-    // Check for chunked data by iterating until null (not relying on count)
-    const chunks: string[] = [];
-    let index = 0;
-    let chunk = await SecureStore.getItemAsync(`${key}_chunk_${index}`);
-    while (chunk !== null) {
-      chunks.push(chunk);
-      index++;
-      chunk = await SecureStore.getItemAsync(`${key}_chunk_${index}`);
-    }
-
-    return chunks.length > 0 ? chunks.join('') : null;
-  },
-
-  async setItem(key: string, value: string): Promise<void> {
-    // Clean up old data first (both direct key and any chunks)
-    await this._removeAll(key);
-
-    if (value.length <= CHUNK_SIZE) {
-      await SecureStore.setItemAsync(key, value);
-      return;
-    }
-
-    // Store in chunks — write count FIRST for atomicity
-    const chunks = value.match(new RegExp(`.{1,${CHUNK_SIZE}}`, 'g')) || [];
-    await SecureStore.setItemAsync(`${key}_chunks`, String(chunks.length));
-    await Promise.all(
-      chunks.map((chunk, index) =>
-        SecureStore.setItemAsync(`${key}_chunk_${index}`, chunk)
-      )
-    );
-  },
-
-  async removeItem(key: string): Promise<void> {
-    await this._removeAll(key);
-  },
-
-  async _removeAll(key: string): Promise<void> {
-    // Remove the direct key
-    try {
-      await SecureStore.deleteItemAsync(key);
-    } catch {}
-
-    // Remove chunks by iterating until null (resilient to stale count)
-    let index = 0;
-    let exists = await SecureStore.getItemAsync(`${key}_chunk_${index}`);
-    while (exists !== null) {
-      await SecureStore.deleteItemAsync(`${key}_chunk_${index}`);
-      index++;
-      exists = await SecureStore.getItemAsync(`${key}_chunk_${index}`);
-    }
-
-    // Remove the count key
-    try {
-      await SecureStore.deleteItemAsync(`${key}_chunks`);
-    } catch {}
-  },
-};
+import { LargeSecureStore } from '@/lib/secure-store';
 
 /**
  * Web fallback for expo web dev only.

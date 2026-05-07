@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import * as SecureStore from 'expo-secure-store';
+import { LargeSecureStore } from '@/lib/secure-store';
 import type { Workout, Exercise } from '@/types';
 
 // Représente un set loggé lors d'une session
@@ -85,11 +85,7 @@ export const useWorkoutStore = create<WorkoutState>()(
     }),
     {
       name: 'apex-workout-session',
-      storage: createJSONStorage(() => ({
-        getItem: (key: string) => SecureStore.getItemAsync(key),
-        setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-        removeItem: (key: string) => SecureStore.deleteItemAsync(key),
-      })),
+      storage: createJSONStorage(() => LargeSecureStore),
       partialize: (state): PersistedWorkoutState => ({
         sessionActive: state.sessionActive,
         currentWorkout: state.currentWorkout,
