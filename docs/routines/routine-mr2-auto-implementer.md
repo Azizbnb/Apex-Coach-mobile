@@ -1,7 +1,7 @@
 # Claude Code Routine MR2 — Auto-Implementer Mobile
 
 > **Version :** 1.1.0 — 08/05/2026 (étendu au vendredi)
-> **Schedule :** 2× par jour Lun→Ven, 08:00 et 16:00 (Europe/Paris) — `0 8,16 * * 1-5`
+> **Schedule :** `0 6,14 * * 1-5` — Lun→Ven 06:00 + 14:00 UTC (= 08:00 + 16:00 Paris CEST). Cron exprimé en UTC côté code.claude.ai (trigger ID `trig_01Te1wdd1Dvic766TAiqGgDz`).
 > **Pacing :** **2 PR/jour = 10/semaine** (5 jours × 2 runs). v1.0.0 limitait à Lun→Jeu pour laisser le vendredi libre à MR5 + review humaine ; étendu au vendredi le 08/05/2026 pour accélérer Sprint 2 (14 tickets en attente).
 > **Routine name :** `apex-mobile-auto-implementer`
 > **Output :** 1 branche `feature/issue-{N}` + 1 PR avec `tsc`, `eslint`, `jest` verts.
