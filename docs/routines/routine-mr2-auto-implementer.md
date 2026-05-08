@@ -1,8 +1,8 @@
 # Claude Code Routine MR2 — Auto-Implementer Mobile
 
-> **Version :** 1.0.0 — 04/05/2026
-> **Schedule :** 2× par jour Lun→Jeu, 08:00 et 16:00 (Europe/Paris) — `0 8,16 * * 1-4`
-> **Pacing initial :** **2 PR/jour = 10/semaine** (validé par utilisateur 03/05/2026). Montée en cadence après stabilisation.
+> **Version :** 1.1.0 — 08/05/2026 (étendu au vendredi)
+> **Schedule :** 2× par jour Lun→Ven, 08:00 et 16:00 (Europe/Paris) — `0 8,16 * * 1-5`
+> **Pacing :** **2 PR/jour = 10/semaine** (5 jours × 2 runs). v1.0.0 limitait à Lun→Jeu pour laisser le vendredi libre à MR5 + review humaine ; étendu au vendredi le 08/05/2026 pour accélérer Sprint 2 (14 tickets en attente).
 > **Routine name :** `apex-mobile-auto-implementer`
 > **Output :** 1 branche `feature/issue-{N}` + 1 PR avec `tsc`, `eslint`, `jest` verts.
 > **Architecture :** Bash + git + `gh` + skills mobile injectés dans le contexte. Multi-fichiers fragmentés (chaque fichier touché < 150 lignes en Write).

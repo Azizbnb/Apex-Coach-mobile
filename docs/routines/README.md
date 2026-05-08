@@ -16,7 +16,7 @@
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  Lun→Jeu, 08:00 + 16:00  MR2 Auto-Implementer (2/jour)          │
+│  Lun→Ven, 08:00 + 16:00  MR2 Auto-Implementer (2/jour)          │
 │      ↓                                                          │
 │  Prend 1 issue mr2-ready → branche → code → tsc/eslint/jest →   │
 │  push → PR (label: auto-qa, from-mr2)                           │
@@ -67,7 +67,7 @@
 | # | Fichier | Schedule | Cap / Pacing | Output |
 |---|---------|----------|--------------|--------|
 | MR1 | [routine-mr1-sprint-planner.md](routine-mr1-sprint-planner.md) | Lun 05:00 | 5 issues max/run | Plan hebdo + issues GitHub |
-| MR2 | [routine-mr2-auto-implementer.md](routine-mr2-auto-implementer.md) | Lun→Jeu 08:00 + 16:00 | 1 PR/run, 5 PR ouvertes max | Branche + PR avec tests verts |
+| MR2 | [routine-mr2-auto-implementer.md](routine-mr2-auto-implementer.md) | Lun→Ven 08:00 + 16:00 | 1 PR/run, 5 PR ouvertes max | Branche + PR avec tests verts |
 | MR3 | [routine-mr3-visual-qa.md](routine-mr3-visual-qa.md) | Sur PR `auto-qa` | — | Commentaire screenshots + checklist |
 | MR4 | [routine-mr4-code-review.md](routine-mr4-code-review.md) | Sur ouverture PR | — | Commentaire HIGH/MED/LOW |
 | MR5 | [routine-mr5-eas-build.md](routine-mr5-eas-build.md) | Ven 18:00 | 1 build/sem | Issue avec lien EAS preview |
