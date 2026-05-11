@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Pressable, RefreshControl } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import { Lock, ExternalLink, Apple } from 'lucide-react-native';
+import { View, Text, FlatList, RefreshControl } from 'react-native';
+import { Lock, Apple } from 'lucide-react-native';
 import { SafeView } from '@/components/ui/SafeView';
+import { FeatureGate } from '@/components/subscription/FeatureGate';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MacroSummary } from '@/components/nutrition/MacroSummary';
@@ -23,35 +23,6 @@ function NutritionSkeleton() {
       <Skeleton height={120} borderRadius={16} />
       <Skeleton height={140} borderRadius={16} />
       <Skeleton height={140} borderRadius={16} />
-    </View>
-  );
-}
-
-function FeatureGate() {
-  const openPaywall = useCallback(() => WebBrowser.openBrowserAsync(PAYWALL_URL), []);
-
-  return (
-    <View className="flex-1 items-center justify-center px-6">
-      <Lock size={48} color={colors.black[400]} />
-      <Text className="text-xl font-bold text-white mt-4 mb-2 text-center">
-        Coaching Pro requis
-      </Text>
-      <Text className="text-apex-black-400 text-center mb-8">
-        Ton plan nutrition IA personnalisé est disponible avec l'abonnement Coaching Pro.
-        Continue ton abonnement sur apexcoach.app.
-      </Text>
-      <Button variant="primary" onPress={openPaywall}>
-        Voir mes options sur apexcoach.app
-      </Button>
-      <Pressable
-        onPress={openPaywall}
-        accessibilityRole="link"
-        accessibilityLabel="Ouvrir apexcoach.app dans le navigateur"
-        className="flex-row items-center gap-1 mt-3"
-      >
-        <ExternalLink size={12} color={colors.black[400]} />
-        <Text className="text-apex-black-400 text-xs">apexcoach.app</Text>
-      </Pressable>
     </View>
   );
 }
@@ -77,7 +48,13 @@ export default function NutritionScreen() {
   if (!hasNutrition) {
     return (
       <SafeView>
-        <FeatureGate />
+        <FeatureGate
+          icon={Lock}
+          title="Coaching Pro requis"
+          description="Ton plan nutrition IA personnalisé est disponible avec l'abonnement Coaching Pro. Continue ton abonnement sur apexcoach.app."
+          ctaUrl={PAYWALL_URL}
+          ctaLabel="Voir mes options sur apexcoach.app"
+        />
       </SafeView>
     );
   }
