@@ -13,6 +13,10 @@ export default function ModalLayout() {
     >
       <Stack.Screen name="exercise-detail" />
       <Stack.Screen name="session-complete" />
+      <Stack.Screen
+        name="rest-timer"
+        options={{ presentation: 'fullScreenModal' }}
+      />
     </Stack>
   );
 }
