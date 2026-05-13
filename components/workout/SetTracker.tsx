@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, TextInput } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Text } from '@/components/ui/Text';
@@ -22,12 +22,19 @@ export function SetTracker({
 }: SetTrackerProps) {
   const { logSet, currentExerciseSets } = useWorkout();
 
-  // Pré-remplit le poids avec la dernière valeur loguée pour cet exercice
   const lastSet = currentExerciseSets[currentExerciseSets.length - 1];
   const [repsInput, setRepsInput] = useState(String(exercise.reps));
   const [weightInput, setWeightInput] = useState(
     lastSet?.weight !== undefined ? String(lastSet.weight) : ''
   );
+
+  // Resynchronise les inputs au passage du set N au set N+1 (le composant reste monté).
+  useEffect(() => {
+    setRepsInput(String(exercise.reps));
+    const last = currentExerciseSets[currentExerciseSets.length - 1];
+    setWeightInput(last?.weight !== undefined ? String(last.weight) : '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setNumber]);
 
   const handleSetComplete = async () => {
     const reps = parseInt(repsInput, 10);
