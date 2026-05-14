@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { MacroSummary } from '@/components/nutrition/MacroSummary';
 import { MealPlanCard } from '@/components/nutrition/MealPlanCard';
 import { ShoppingList } from '@/components/nutrition/ShoppingList';
+import { MealDetail } from '@/components/nutrition/MealDetail';
 import { RecipeDetail } from '@/components/nutrition/RecipeDetail';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNutritionStore } from '@/stores/nutrition';
@@ -33,6 +34,7 @@ export default function NutritionScreen() {
 
   const [refreshing, setRefreshing] = useState(false);
   const [shoppingVisible, setShoppingVisible] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
 
   useEffect(() => {
@@ -125,7 +127,7 @@ export default function NutritionScreen() {
         renderItem={({ item: meal }) => (
           <MealPlanCard
             meal={meal}
-            onPress={() => meal.foods[0] && setSelectedFood(meal.foods[0])}
+            onPress={() => setSelectedMeal(meal)}
             className="mx-4 mb-3"
           />
         )}
@@ -136,6 +138,12 @@ export default function NutritionScreen() {
         meals={meals}
         visible={shoppingVisible}
         onClose={() => setShoppingVisible(false)}
+      />
+      <MealDetail
+        meal={selectedMeal}
+        visible={!!selectedMeal}
+        onClose={() => setSelectedMeal(null)}
+        onFoodPress={setSelectedFood}
       />
       <RecipeDetail
         food={selectedFood}
