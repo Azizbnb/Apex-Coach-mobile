@@ -22,7 +22,9 @@ function buildShoppingList(meals: Meal[]): ShoppingItem[] {
       map.set(food.name, existing ? `${existing} + ${food.quantity}` : food.quantity);
     });
   });
-  return Array.from(map.entries()).map(([name, quantity]) => ({ name, quantity }));
+  return Array.from(map.entries())
+    .map(([name, quantity]) => ({ name, quantity }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 }
 
 export function ShoppingList({ meals, visible, onClose }: ShoppingListProps) {
