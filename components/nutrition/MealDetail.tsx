@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { View, Text, Modal, ScrollView, Pressable } from 'react-native';
 import { X, Clock, ChevronRight } from 'lucide-react-native';
 import { colors } from '@/lib/constants';
@@ -11,9 +12,15 @@ interface MealDetailProps {
 }
 
 export function MealDetail({ meal, visible, onClose, onFoodPress }: MealDetailProps) {
-  if (!meal) return null;
+  // Conserve le dernier meal non-null pour permettre l'animation de fermeture
+  // pageSheet (le parent passe meal=null APRÈS avoir mis visible=false).
+  const mealRef = useRef<Meal | null>(meal);
+  if (meal) mealRef.current = meal;
+  const displayMeal = mealRef.current;
 
-  const totalCalories = meal.foods.reduce((acc, f) => acc + f.calories, 0);
+  if (!displayMeal) return null;
+
+  const totalCalories = displayMeal.foods.reduce((acc, f) => acc + f.calories, 0);
 
   return (
     <Modal
@@ -27,18 +34,19 @@ export function MealDetail({ meal, visible, onClose, onFoodPress }: MealDetailPr
         <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-apex-black-700">
           <View className="flex-1 mr-4">
             <Text className="text-white font-bold text-lg" numberOfLines={1}>
-              {meal.name}
+              {displayMeal.name}
             </Text>
             <View className="flex-row items-center gap-2 mt-1">
               <Clock size={12} color={colors.black[400]} />
-              <Text className="text-apex-black-400 text-xs">{meal.time}</Text>
+              <Text className="text-apex-black-400 text-xs">{displayMeal.time}</Text>
               <Text className="text-apex-black-400 text-xs">
-                {' · '}{meal.foods.length} aliment{meal.foods.length > 1 ? 's' : ''}
+                {' · '}{displayMeal.foods.length} aliment{displayMeal.foods.length > 1 ? 's' : ''}
               </Text>
             </View>
           </View>
           <Pressable
             onPress={onClose}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             className="p-2 rounded-full bg-apex-black-800 active:opacity-70"
             accessibilityRole="button"
             accessibilityLabel="Fermer le détail du repas"
@@ -57,7 +65,7 @@ export function MealDetail({ meal, visible, onClose, onFoodPress }: MealDetailPr
         {/* Liste des aliments */}
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <View className="px-6 pt-2 pb-8">
-            {meal.foods.map((food, index) => (
+            {displayMeal.foods.map((food, index) => (
               <Pressable
                 key={`${food.name}-${index}`}
                 onPress={() => onFoodPress(food)}
