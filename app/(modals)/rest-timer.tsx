@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -12,13 +13,20 @@ type RestTimerParams = {
 
 const DEFAULT_DURATION = 90;
 
+/** Parse une durée depuis un paramètre d'URL en se protégeant de NaN/négatifs/non-finis. */
+function parseDuration(raw: string | undefined): number {
+  if (!raw) return DEFAULT_DURATION;
+  const parsed = parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_DURATION;
+}
+
 export default function RestTimerModal() {
   const { duration: durationParam } = useLocalSearchParams<RestTimerParams>();
-  const duration = durationParam ? Math.max(1, parseInt(durationParam, 10)) : DEFAULT_DURATION;
+  const duration = parseDuration(durationParam);
 
-  function handleFinish() {
+  const handleFinish = useCallback(() => {
     router.back();
-  }
+  }, []);
 
   return (
     <SafeView className="flex-1 bg-apex-black-900">
