@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Pressable, Text } from 'react-native';
+import { Platform, Pressable, Text } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { ExternalLink } from 'lucide-react-native';
 import { affiliateApi } from '@/lib/api';
@@ -19,10 +19,13 @@ export interface AffiliateLinkProps {
   className?: string;
 }
 
+/** Source UTM dérivée de la plateforme native (CLAUDE.md §1 attribution mobile). */
+const UTM_SOURCE = Platform.OS === 'ios' ? 'ios_app' : 'android_app';
+
 function addUtmParams(url: string): string {
   try {
     const parsed = new URL(url);
-    parsed.searchParams.set('utm_source', 'ios_app');
+    parsed.searchParams.set('utm_source', UTM_SOURCE);
     parsed.searchParams.set('utm_medium', 'affiliate');
     return parsed.toString();
   } catch {
