@@ -1,8 +1,25 @@
 'use strict';
 
-// Mock manuel pour react-native-reanimated 4.x
-// Pas de require('react-native') pour éviter de charger react-native-css-interop
-// (non transformé par Jest) via la chaîne de dépendances.
+/**
+ * Mock manuel pour react-native-reanimated 4.x (compatible SDK 55).
+ *
+ * Raison d'être : Jest ne peut pas transformer react-native-reanimated en mode
+ * managé Expo car le package dépend de react-native-css-interop (non transformé
+ * par le preset Jest). Ce mock reproduit fidèlement la surface publique utilisée
+ * dans les tests sans déclencher la chaîne de dépendances native.
+ *
+ * Symboles exposés :
+ *   Hooks  : useSharedValue, useAnimatedStyle, useAnimatedProps,
+ *            useDerivedValue, useAnimatedRef, useAnimatedScrollHandler
+ *   Drivers : withTiming, withSpring, withDecay, withSequence,
+ *             withDelay, withRepeat, cancelAnimation
+ *   Thread  : runOnJS, runOnUI
+ *   Impératif : scrollTo, measure
+ *   Utilitaires : interpolate, Easing, Extrapolation, ReduceMotion
+ *   Entrées  : FadeIn, FadeOut, SlideInRight, SlideOutLeft, SlideInLeft,
+ *              ZoomIn, ZoomOut
+ *   HOC     : createAnimatedComponent (fusionne animatedProps pour le rendu)
+ */
 
 const React = require('react');
 

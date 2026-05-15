@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { Lock, ChevronRight, Dumbbell } from 'lucide-react-native';
 import { Text } from '@/components/ui/Text';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -32,7 +32,7 @@ export function WeekCard({
 
   const handlePress = () => {
     if (!isUnlocked) return;
-    router.push(`/(tabs)/programme/${weekNumber}` as never);
+    router.push(`/(tabs)/programme/${weekNumber}` as Href);
   };
 
   const unlockLabel = unlockDate

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import { WeekCard } from '../WeekCard';
+import { WeekCard } from '@/components/programme/WeekCard';
 
 const mockPush = jest.fn();
 
