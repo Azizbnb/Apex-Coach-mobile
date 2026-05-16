@@ -129,12 +129,12 @@
 - **Fichiers :** `components/workout/RestTimer.tsx`, `app/(modals)/rest-timer.tsx`
 - **Notes :** son + haptics (expo-haptics) à l'écoulement. Déclenche notification background si app pas au premier plan.
 
-### S2-T10: Écran `(tabs)/workout/index.tsx` (Active Workout, full-screen)
+### S2-T10: Écran `(tabs)/entrainement/index.tsx` (Active Workout, full-screen)
 
 - **Statut :** todo
 - **Estimation :** L (~300 LOC, high)
 - **Dépendances :** S2-T07, S2-T08, S2-T09
-- **Fichiers :** `app/(tabs)/workout/index.tsx`, `components/workout/ActiveWorkout.tsx`, `components/workout/CompletionScreen.tsx`
+- **Fichiers :** `app/(tabs)/entrainement/index.tsx`, `components/workout/ActiveWorkout.tsx`, `components/workout/CompletionScreen.tsx`
 - **Critères d'acceptance :**
   - [ ] Affiche exercice courant + SetTracker + bouton "Set suivant"
   - [ ] Timer entre sets (modal RestTimer)
