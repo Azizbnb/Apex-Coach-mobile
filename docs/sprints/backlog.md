@@ -3,6 +3,7 @@
 > **Rôle :** ce fichier est la **source de vérité** lue par la routine `MR1 Sprint Planner` chaque lundi 05:00 UTC. Chaque ticket listé devient une issue GitHub fragmentée (1 issue = 1 PR < 300 lignes).
 > **Mise à jour :** manuelle par toi (Abdelaziz) ou par PR review humaine. MR1 ne modifie jamais ce fichier — il le lit seulement.
 > **Règle critique :** un ticket ne quitte PAS le backlog tant que la PR correspondante n'est pas mergée.
+> **Refonte 2026-05-16 :** sprints S2-S5 réécrits sur la base de [`WEB_FLOW_AUDIT.md`](WEB_FLOW_AUDIT.md). Chaque ticket pointe désormais vers le composant/page web qu'il mirror. Brief : [`REFONTE_BRIEF.md`](REFONTE_BRIEF.md).
 
 ---
 
@@ -34,14 +35,16 @@ Chaque ticket suit ce gabarit (parsable par MR1) :
 | Sprint | Fichier | Thème | Tickets | Statut |
 |--------|---------|-------|---------|--------|
 | 1 | — | Fondations Expo + auth + nav + UI + stores | — | **Terminé (16/03/2026)** |
-| 2 | [sprint-2.md](sprint-2.md) | Dashboard + Programme + Workout actif + Nutrition + Affiliés + Banners | 19 tickets (S2-T00 Setup Jest + T15-T18 follow-up PRs #7-#10) | À planifier |
-| 3 | [sprint-3.md](sprint-3.md) | Onboarding + Trial + Questionnaire 27 steps + Codes Promo + Paywall info + Tutoriel | 17 tickets (Reader/IAP supprimés, modèle Netflix : S3-T19 = welcome hero, S3-T20 = attribution, S3-T24 = tutoriel) | À planifier |
-| 4 | [sprint-4.md](sprint-4.md) | Notifications push + Bilan + Settings + Reviews + Polish + Sentry | 14 tickets | À planifier |
-| 5 | [sprint-5.md](sprint-5.md) | Publication TestFlight + Play Internal + ASO + .well-known + buffer review | 8 tickets | À planifier |
+| 2 | [sprint-2.md](sprint-2.md) | Dashboard + Programme + Workout actif (6 phases) + Nutrition + Affiliés + Banners | 26 tickets (14 done PR #29/#30/#31, 2 done partiel, 10 todo dont 3 correctifs flow workout) | En cours |
+| 3 | [sprint-3.md](sprint-3.md) | Welcome + Onboarding + Questionnaire 24 micro-steps + Redeem + Paywall info + Auth deep links + Attribution + Tutoriel | 26 tickets (modèle Netflix : zéro IAP, zéro prix affiché, conversion via WebBrowser uniquement) | À planifier |
+| 4 | [sprint-4.md](sprint-4.md) | Bilan modal + Tab Bilan (analytics) + Profil + Settings (objectif, jeûne, mdp, RGPD, delete, reviews) + Notifications push + Sentry | 20 tickets | À planifier |
+| 5 | [sprint-5.md](sprint-5.md) | Publication TestFlight + Play Internal + ASO + .well-known + buffer review stores | 8 tickets | À planifier |
 
-**Total :** 54 tickets fragmentés sur 4 sprints (~32 jours-homme dans la spec v2, -2j Reader supprimé + 1j tutoriel + 1j attribution + 0,5j setup Jest = ~32,5j — cible : < 6 semaines en routine continue 2 PR/jour).
+**Total :** 80 tickets (dont 14 déjà mergés via PRs #29/#30/#31). Reste à livrer : ~66 tickets — cible : < 7 semaines en routine continue 2 PR/jour.
 
-> **Décision finale 04/05/2026** : **App 100% gratuite, modèle Netflix.** Le paiement reste Stripe sur `apexcoach.app` uniquement. L'app permet signup + trial + redeem mais aucun paiement in-app, aucune mention de prix. 0% commission Apple/Google. Voir `docs/AUDIT_PHASE_0.md` §5.
+> **Décision finale 04/05/2026** : **App 100% gratuite, modèle Netflix.** Le paiement reste Stripe sur `apexcoach.app` uniquement. L'app permet signup + trial + redeem mais aucun paiement in-app, aucune mention de prix. 0% commission Apple/Google. Voir `docs/AUDIT_PHASE_0.md` §5 et `WEB_FLOW_AUDIT.md` §9.
+
+> **Source de vérité du flow :** [`WEB_FLOW_AUDIT.md`](WEB_FLOW_AUDIT.md) liste l'ensemble des routes / modals / API consommées par le web et indique pour chacune la cible mobile correspondante. Toute nouvelle feature mobile doit pouvoir citer une route ou un modal de cet audit, sinon elle est hors scope.
 
 ---
 

@@ -1,8 +1,9 @@
 # CLAUDE.md - Apex Coach Mobile (Expo)
 
-> **Version :** 1.2.0 — Audit Phase 0 (alignement spec v2 + pricing web)
+> **Version :** 1.4.0 — Refonte sprints S2-S5 sur la base du flow web (cf. docs/sprints/WEB_FLOW_AUDIT.md)
 > **Parent :** Ce projet est le client mobile natif d'Apex Coach. Le backend est documenté dans `C:\Users\benta\Apex-Coach\CLAUDE.md`.
-> **Spec directrice :** `C:\Users\benta\Apex-Coach\docs\MOBILE_APP_TECHNICAL_SPEC_v2.md` (v2.0, 14 avril 2026)
+> **Source de vérité du flow :** [`docs/sprints/WEB_FLOW_AUDIT.md`](docs/sprints/WEB_FLOW_AUDIT.md) (audit web → mapping mobile, généré 2026-05-16). La spec mobile v2.0 n'est plus la référence active.
+> **Spec mobile historique :** `C:\Users\benta\Apex-Coach\docs\MOBILE_APP_TECHNICAL_SPEC_v2.md` (v2.0, 14 avril 2026 — gardée pour contexte, ne pas suivre aveuglément).
 > **Backlog :** `apex-coach-mobile/docs/sprints/backlog.md`
 
 ---
@@ -417,17 +418,19 @@ Voir [`docs/routines/README.md`](docs/routines/README.md) §"Pré-requis techniq
 
 ---
 
-## 12. Planning Sprint (référence — aligné spec v2.0)
+## 12. Planning Sprint (refondu 2026-05-16 — aligné `WEB_FLOW_AUDIT.md`)
 
 | Sprint | Contenu | Statut |
 |--------|---------|--------|
-| **Sprint 1** | Fondations (Expo, auth, navigation, stores, UI, types) | **Terminé** |
-| Sprint 2 | Dashboard + Programme + Workout actif + Nutrition + Liens affiliés + Banners | Prochain |
-| Sprint 3 | Onboarding + Trial + Questionnaire 27 micro-steps + Codes Promo + Paywall + Reader | — |
-| Sprint 4 | Notifications push + Bilan hebdo + Settings (jeûne, delete) + Reviews + Polish + Sentry | — |
-| Sprint 5 | Publication stores (TestFlight + Play Internal + ASO + .well-known + buffer review) | — |
+| **Sprint 1** | Fondations (Expo, auth, navigation, stores, UI, types) | **Terminé (16/03/2026)** |
+| **Sprint 2** | Dashboard + Programme + Workout actif **6 phases** + Nutrition + Affiliés + Banners (mirror `/programme`, `/entrainement`, `/nutrition`) | **En cours** — PRs #29/#30/#31 mergées (14 tickets), 10 tickets restants (Jest setup + 3 correctifs flow workout + polish nutrition + intégration banners) |
+| Sprint 3 | Welcome + Auth deep links + Questionnaire 24 micro-steps + Redeem + Paywall **info-only** + Nutrition preferences + Attribution + Tutoriel (mirror `(auth)/*`, `auth/*`, `questionnaire/*`, `redeem`, `nutrition/preferences`) | À planifier — 26 tickets |
+| Sprint 4 | Bilan modal + Tab Bilan (analytics) + Profil + Settings complet + Reviews + Notifications push + Sentry (mirror `/bilan`, `/analytics`, `/profil`, `/settings`) | À planifier — 20 tickets |
+| Sprint 5 | Publication TestFlight + Play Internal + ASO + .well-known + buffer review | À planifier — 8 tickets |
 
-**Backlog détaillé** : `docs/sprints/backlog.md` + `docs/sprints/sprint-{2..5}.md`
+**Source de vérité du flow** : `docs/sprints/WEB_FLOW_AUDIT.md` (chaque ticket des sprints S2-S5 mappe à une route ou un modal de cet audit).
+
+**Backlog détaillé** : `docs/sprints/backlog.md` + `docs/sprints/sprint-{2..5}.md` + `docs/sprints/REFONTE_BRIEF.md` (contexte de la refonte).
 
 ---
 
@@ -473,6 +476,7 @@ Tous les bugs identifiés lors de l'audit Sprint 1 ont été corrigés :
 
 | Date | Version | Changements |
 |------|---------|-------------|
+| 16/05/2026 | 1.4.0 | **Refonte sprints S2-S5 sur la base du flow web** : audit complet `docs/sprints/WEB_FLOW_AUDIT.md` (22 routes + 12 modals + 22 API + matrice composants par domaine), réécriture des 4 sprints — chaque ticket mirror un écran/modal web identifiable (référence `Apex-Coach/...`). Sprint 2 : tickets PR #29/#30/#31 consolidés `done` + 3 correctifs (drag-drop prep, modal vidéo embarqué, timer libre). Sprint 3 : 26 tickets (24 micro-steps questionnaire + redeem + paywall info + deep links + attribution). Sprint 4 : 20 tickets (bilan modal + analytics + settings complet + push + Sentry). Sprint 5 : 8 tickets publication. **Source de vérité** désormais = code web actuel, plus la spec v2.0. |
 | 04/05/2026 | 1.3.0 | **Setup complet écosystème mobile** : 10 skills (.claude/skills/apex-mobile-*) + 7 routines (docs/routines/MR1-MR7) + backlog Sprint 2-5 (53 tickets) + AUDIT_PHASE_0.md. Modèle économique = **App gratuite Netflix** (paiement uniquement web Stripe, 0% commission stores). Cycle vertueux 24/7 prêt à activer. |
 | 03/05/2026 | 1.2.0 | Audit Phase 0 (skills + routines mobile) : ref spec corrigée (v2.0), pricing aligné (Starter deprecated mais conservé legacy `hidden`), stack complète (React 19.2, reanimated 4.2.2), 5 sprints (vs 4), pointeur backlog. |
 | 16/03/2026 | 1.1.0 | Audit Sprint 1 complet : 13 bugs corrigés (critiques + hauts + moyens), 4 nouveaux composants UI, convenience hooks, lib placeholders, Text export, couleurs alignées web. |
