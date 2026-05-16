@@ -1,94 +1,71 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, ScrollView, Pressable, Alert } from 'react-native';
+import { View, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { Timer } from 'lucide-react-native';
 
 import { SafeView } from '@/components/ui/SafeView';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
-import { ExerciseCard } from '@/components/programme/ExerciseCard';
-import { SetTracker } from '@/components/workout/SetTracker';
+import { WorkoutTopBar } from '@/components/workout/WorkoutTopBar';
+import { WarmupCooldownCard } from '@/components/workout/WarmupCooldownCard';
+import { ExercisePrepScreen } from '@/components/workout/ExercisePrepScreen';
+import { ExerciseView, ExerciseTipBanner } from '@/components/workout/ExerciseView';
+import { RestChoiceScreen } from '@/components/workout/RestChoiceScreen';
+import { RestTimer } from '@/components/workout/RestTimer';
 import { useWorkout } from '@/hooks/useWorkout';
-import { colors } from '@/lib/constants';
-
-function formatElapsed(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
 
 export default function WorkoutScreen() {
   const {
-    sessionActive,
+    phase,
+    session,
     currentWorkout,
     currentExercise,
     currentExerciseIndex,
-    currentExerciseSets,
+    currentSet,
     totalExercises,
-    isLastExercise,
-    startedAt,
-    nextExercise,
-    finishSession,
+    completedCount,
+    restSeconds,
+    completeWarmup,
+    startExercises,
+    validateSet,
+    chooseRest,
+    skipRest,
+    finishRest,
+    skipExercise,
+    completeCooldown,
+    resetSession,
   } = useWorkout();
 
-  // Tick à chaque seconde pour rafraîchir le chrono affiché
-  const [, setTick] = useState(0);
+  const [tipVisible, setTipVisible] = useState(false);
+
+  // Reset l'affichage du conseil à chaque changement d'exercice/série/phase.
   useEffect(() => {
-    if (!startedAt) return;
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
-    return () => clearInterval(id);
-  }, [startedAt]);
+    setTipVisible(false);
+  }, [currentExerciseIndex, currentSet, phase]);
 
-  const elapsedDisplay = startedAt
-    ? formatElapsed(Math.floor((Date.now() - startedAt) / 1000))
-    : '00:00';
-
-  const setNumber = currentExerciseSets.length + 1;
-  const setsComplete = currentExercise
-    ? currentExerciseSets.length >= currentExercise.sets
-    : false;
-
-  const handleSetLogged = useCallback(() => {
-    if (!currentExercise) return;
-    const justLoggedAll = currentExerciseSets.length + 1 >= currentExercise.sets;
-    if (justLoggedAll) {
-      // Tous les sets de l'exo sont faits → on attend que l'user clique "Suivant" ou "Repos"
-      return;
-    }
-    router.push({
-      pathname: '/(modals)/rest-timer',
-      params: { duration: String(currentExercise.rest_seconds) },
-    });
-  }, [currentExercise, currentExerciseSets.length]);
-
-  const handleNext = useCallback(() => {
-    if (isLastExercise) {
-      router.push('/(modals)/session-complete');
-    } else {
-      nextExercise();
-    }
-  }, [isLastExercise, nextExercise]);
-
-  const handleAbort = useCallback(() => {
+  const handleBack = useCallback(() => {
     Alert.alert(
-      'Abandonner la séance ?',
+      'Quitter la séance ?',
       'Tes sets enregistrés seront perdus.',
       [
         { text: 'Annuler', style: 'cancel' },
         {
-          text: 'Abandonner',
+          text: 'Quitter',
           style: 'destructive',
           onPress: () => {
-            finishSession();
+            resetSession();
             router.replace('/(tabs)/programme');
           },
         },
       ]
     );
-  }, [finishSession]);
+  }, [resetSession]);
 
-  // État 1 : pas de session active → empty state
-  if (!sessionActive || !currentWorkout || !currentExercise) {
+  const handleViewStats = useCallback(() => {
+    router.push('/(modals)/session-complete');
+  }, []);
+
+  // ───── Empty state : aucune séance active ───────────────────────────
+  if (phase === 'idle' || !session || !currentWorkout) {
     return (
       <SafeView>
         <View className="flex-1 items-center justify-center px-6 gap-4">
@@ -110,84 +87,144 @@ export default function WorkoutScreen() {
     );
   }
 
-  // État 2 : session active
+  // ───── Phase completed ──────────────────────────────────────────────
+  if (phase === 'completed') {
+    return (
+      <SafeView>
+        <View className="flex-1 items-center justify-center px-6 gap-4">
+          <Text variant="h2" className="text-white text-center">
+            Séance terminée !
+          </Text>
+          <Button variant="primary" onPress={handleViewStats}>
+            Voir mes stats
+          </Button>
+        </View>
+      </SafeView>
+    );
+  }
+
+  const sessionLabel = `${session.day.toUpperCase()} — ${session.type.toUpperCase()}`;
+  const currentAIExercise = session.main_workout[currentExerciseIndex];
+
   return (
     <SafeView>
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 32 }}>
-        {/* En-tête : titre + chrono + progression exo */}
-        <View className="mt-4 mb-6">
+      <WorkoutTopBar
+        currentIndex={currentExerciseIndex + 1}
+        totalExercises={totalExercises}
+        completedCount={completedCount}
+        onBack={handleBack}
+      />
+
+      {/* ───── Phase warmup ───────────────────────────────────────── */}
+      {phase === 'warmup' && (
+        <ScrollView
+          className="flex-1 px-4"
+          contentContainerStyle={{ paddingVertical: 16 }}
+        >
           <Text variant="h2" className="text-white mb-1">
-            {currentWorkout.title}
+            {session.type}
           </Text>
-          <View className="flex-row items-center gap-3">
-            <View className="flex-row items-center gap-1.5">
-              <Timer size={14} color={colors.black[400]} />
-              <Text variant="caption" className="text-apex-black-400 tabular-nums">
-                {elapsedDisplay}
-              </Text>
-            </View>
+          <Text variant="caption" className="text-apex-black-400 mb-4">
+            {session.day} · {session.duration_minutes} min
+          </Text>
+          <WarmupCooldownCard
+            type="warmup"
+            durationMinutes={session.warmup.duration_minutes}
+            exercises={session.warmup.exercises}
+            onComplete={completeWarmup}
+          />
+        </ScrollView>
+      )}
+
+      {/* ───── Phase prep ─────────────────────────────────────────── */}
+      {phase === 'prep' && (
+        <ExercisePrepScreen
+          sessionLabel={sessionLabel}
+          exercises={currentWorkout.exercises}
+          onStart={startExercises}
+        />
+      )}
+
+      {/* ───── Phase exercise ─────────────────────────────────────── */}
+      {phase === 'exercise' && currentExercise && currentAIExercise && (
+        <>
+          {tipVisible && currentAIExercise.notes && (
+            <ExerciseTipBanner notes={currentAIExercise.notes} />
+          )}
+          <ExerciseView
+            exercise={currentAIExercise}
+            currentSet={currentSet}
+            currentIndex={currentExerciseIndex + 1}
+            totalExercises={totalExercises}
+            onValidate={({ reps, weight }) =>
+              validateSet({
+                exerciseId: currentExercise.id,
+                exerciseName: currentExercise.name,
+                setNumber: currentSet,
+                reps,
+                weight,
+              })
+            }
+            onSkip={skipExercise}
+            onShowTip={
+              currentAIExercise.notes
+                ? () => setTipVisible((v) => !v)
+                : undefined
+            }
+          />
+        </>
+      )}
+
+      {/* ───── Phase restChoice ───────────────────────────────────── */}
+      {phase === 'restChoice' && (
+        <RestChoiceScreen
+          completedSet={currentSet}
+          totalSets={currentExercise?.sets ?? 0}
+          restSeconds={restSeconds}
+          onChooseRest={chooseRest}
+          onSkipRest={skipRest}
+        />
+      )}
+
+      {/* ───── Phase resting ──────────────────────────────────────── */}
+      {phase === 'resting' && (
+        <View className="flex-1 items-center justify-center px-6 gap-6">
+          <View className="items-center gap-1">
             <Text variant="caption" className="text-apex-black-400">
               Exercice {currentExerciseIndex + 1} / {totalExercises}
             </Text>
-          </View>
-        </View>
-
-        {/* Carte de l'exo courant (mode compact non — on veut tout voir) */}
-        <ExerciseCard exercise={currentExercise} className="mb-4" />
-
-        {/* Historique des sets déjà loggés sur cet exo */}
-        {currentExerciseSets.length > 0 && (
-          <View className="bg-apex-black-800 rounded-xl p-4 border border-apex-black-700 mb-4">
-            <Text variant="label" className="text-apex-black-400 mb-2">
-              Sets enregistrés
+            <Text variant="h2" className="text-white text-center">
+              {currentExercise?.name}
             </Text>
-            {currentExerciseSets.map((s) => (
-              <View key={s.completedAt} className="flex-row justify-between py-1">
-                <Text variant="body" className="text-white">
-                  Set {s.setNumber}
-                </Text>
-                <Text variant="body" className="text-apex-black-400">
-                  {s.reps} reps{s.weight !== undefined ? ` × ${s.weight} kg` : ''}
-                </Text>
-              </View>
-            ))}
           </View>
-        )}
-
-        {/* Tracker du set suivant OU bouton "Exercice suivant" si tous les sets sont faits */}
-        {setsComplete ? (
-          <Button
-            variant="primary"
-            onPress={handleNext}
-            className="mb-3"
-            accessibilityLabel={
-              isLastExercise ? 'Terminer la séance' : 'Passer à l\'exercice suivant'
-            }
-          >
-            {isLastExercise ? 'Terminer la séance' : 'Exercice suivant'}
-          </Button>
-        ) : (
-          <SetTracker
-            exercise={currentExercise}
-            setNumber={setNumber}
-            onSetLogged={handleSetLogged}
-            className="mb-3"
+          <RestTimer
+            duration={restSeconds}
+            onFinish={finishRest}
+            onSkip={finishRest}
           />
-        )}
+        </View>
+      )}
 
-        {/* Lien discret : abandonner la séance */}
-        <Pressable
-          onPress={handleAbort}
-          accessibilityRole="button"
-          accessibilityLabel="Abandonner la séance"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          className="self-center py-3 mt-2"
+      {/* ───── Phase cooldown ─────────────────────────────────────── */}
+      {phase === 'cooldown' && session.cooldown && (
+        <ScrollView
+          className="flex-1 px-4"
+          contentContainerStyle={{ paddingVertical: 16 }}
         >
-          <Text variant="caption" className="text-apex-black-400 underline">
-            Abandonner la séance
+          <Text variant="h2" className="text-white mb-1">
+            Bien joué !
           </Text>
-        </Pressable>
-      </ScrollView>
+          <Text variant="caption" className="text-apex-black-400 mb-4">
+            Termine par le retour au calme
+          </Text>
+          <WarmupCooldownCard
+            type="cooldown"
+            durationMinutes={session.cooldown.duration_minutes}
+            exercises={session.cooldown.exercises}
+            onComplete={completeCooldown}
+          />
+        </ScrollView>
+      )}
     </SafeView>
   );
 }

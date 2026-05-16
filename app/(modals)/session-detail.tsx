@@ -70,7 +70,7 @@ export default function SessionDetailModal() {
   const handleStart = () => {
     if (!user) return;
     const workout = aiSessionToWorkout(session, weekNumber, sessionIndex, user.id);
-    startSession(workout);
+    startSession({ session, workout, weekNumber, sessionIndex });
     router.dismissAll();
     router.replace('/(tabs)/workout');
   };
