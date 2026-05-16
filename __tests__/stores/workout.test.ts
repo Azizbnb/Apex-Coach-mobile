@@ -1,6 +1,7 @@
 import { useWorkoutStore } from '@/stores/workout';
 import type { SetLog } from '@/stores/workout';
 import type { Workout } from '@/types';
+import type { AISession } from '@/lib/programs/adapter';
 
 const workoutFixture: Workout = {
   id: 'wk-1',
@@ -15,6 +16,26 @@ const workoutFixture: Workout = {
   completed: false,
   created_at: '2026-05-05T00:00:00Z',
   updated_at: '2026-05-05T00:00:00Z',
+};
+
+const aiSessionFixture: AISession = {
+  day: 'Lundi',
+  session_number: 1,
+  type: 'Force',
+  duration_minutes: 60,
+  warmup: { duration_minutes: 5, exercises: ['Échauffement articulaire'] },
+  main_workout: [
+    { exercise_name: 'Développé couché', sets: 4, reps: '10', rest_seconds: 90 },
+    { exercise_name: 'Dips', sets: 3, reps: '12', rest_seconds: 60 },
+  ],
+  cooldown: { duration_minutes: 5, exercises: ['Étirements'] },
+};
+
+const startSessionPayload = {
+  session: aiSessionFixture,
+  workout: workoutFixture,
+  weekNumber: 1,
+  sessionIndex: 0,
 };
 
 // Réinitialise le store entre chaque test
@@ -44,7 +65,7 @@ describe('useWorkoutStore — état initial', () => {
 describe('useWorkoutStore — startSession', () => {
   it('initialise la session avec le workout fourni', () => {
     const before = Date.now();
-    useWorkoutStore.getState().startSession(workoutFixture);
+    useWorkoutStore.getState().startSession(startSessionPayload);
     const after = Date.now();
 
     const state = useWorkoutStore.getState();
@@ -58,7 +79,7 @@ describe('useWorkoutStore — startSession', () => {
   });
 
   it('réinitialise les sets si une session précédente était active', () => {
-    useWorkoutStore.getState().startSession(workoutFixture);
+    useWorkoutStore.getState().startSession(startSessionPayload);
     useWorkoutStore.getState().logSet({
       exerciseId: 'ex-1',
       exerciseName: 'Développé couché',
@@ -66,14 +87,14 @@ describe('useWorkoutStore — startSession', () => {
       reps: 10,
       weight: 80,
     });
-    useWorkoutStore.getState().startSession(workoutFixture);
+    useWorkoutStore.getState().startSession(startSessionPayload);
     expect(useWorkoutStore.getState().sets).toHaveLength(0);
   });
 });
 
 describe('useWorkoutStore — logSet', () => {
   it('ajoute un set loggé avec timestamp', () => {
-    useWorkoutStore.getState().startSession(workoutFixture);
+    useWorkoutStore.getState().startSession(startSessionPayload);
     const before = Date.now();
     useWorkoutStore.getState().logSet({
       exerciseId: 'ex-1',
@@ -94,7 +115,7 @@ describe('useWorkoutStore — logSet', () => {
   });
 
   it('accumule plusieurs sets sans écraser', () => {
-    useWorkoutStore.getState().startSession(workoutFixture);
+    useWorkoutStore.getState().startSession(startSessionPayload);
     const base: Omit<SetLog, 'completedAt'> = {
       exerciseId: 'ex-1',
       exerciseName: 'Développé couché',
@@ -109,7 +130,7 @@ describe('useWorkoutStore — logSet', () => {
 
 describe('useWorkoutStore — nextExercise', () => {
   it("incrémente l'index et remet le timer à 0", () => {
-    useWorkoutStore.getState().startSession(workoutFixture);
+    useWorkoutStore.getState().startSession(startSessionPayload);
     useWorkoutStore.getState().setTimer(60);
     useWorkoutStore.getState().nextExercise();
 
@@ -120,8 +141,8 @@ describe('useWorkoutStore — nextExercise', () => {
 });
 
 describe('useWorkoutStore — finishSession', () => {
-  it('remet tout le state à zéro', () => {
-    useWorkoutStore.getState().startSession(workoutFixture);
+  it('passe la phase à "completed" en gardant les stats pour l\'écran récap', () => {
+    useWorkoutStore.getState().startSession(startSessionPayload);
     useWorkoutStore.getState().logSet({
       exerciseId: 'ex-1',
       exerciseName: 'Développé couché',
@@ -131,6 +152,26 @@ describe('useWorkoutStore — finishSession', () => {
     useWorkoutStore.getState().finishSession();
 
     const state = useWorkoutStore.getState();
+    expect(state.phase).toBe('completed');
+    // Les stats restent dispo pour session-complete
+    expect(state.sessionActive).toBe('wk-1');
+    expect(state.sets).toHaveLength(1);
+  });
+});
+
+describe('useWorkoutStore — resetSession', () => {
+  it('remet tout le state à zéro', () => {
+    useWorkoutStore.getState().startSession(startSessionPayload);
+    useWorkoutStore.getState().logSet({
+      exerciseId: 'ex-1',
+      exerciseName: 'Développé couché',
+      setNumber: 1,
+      reps: 8,
+    });
+    useWorkoutStore.getState().resetSession();
+
+    const state = useWorkoutStore.getState();
+    expect(state.phase).toBe('idle');
     expect(state.sessionActive).toBeNull();
     expect(state.currentWorkout).toBeNull();
     expect(state.sets).toHaveLength(0);

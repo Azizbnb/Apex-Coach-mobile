@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react-native';
 import { useWorkout } from '@/hooks/useWorkout';
 import { useWorkoutStore } from '@/stores/workout';
 import type { Workout } from '@/types';
+import type { AISession } from '@/lib/programs/adapter';
 
 const workoutFixture: Workout = {
   id: 'wk-42',
@@ -16,6 +17,26 @@ const workoutFixture: Workout = {
   completed: false,
   created_at: '2026-05-05T00:00:00Z',
   updated_at: '2026-05-05T00:00:00Z',
+};
+
+const aiSessionFixture: AISession = {
+  day: 'Mardi',
+  session_number: 2,
+  type: 'Hypertrophie',
+  duration_minutes: 45,
+  warmup: { duration_minutes: 5, exercises: ['Échauffement épaules'] },
+  main_workout: [
+    { exercise_name: 'Tractions', sets: 4, reps: '8', rest_seconds: 120 },
+    { exercise_name: 'Curl barre', sets: 3, reps: '12', rest_seconds: 60 },
+  ],
+  cooldown: { duration_minutes: 5, exercises: ['Étirements'] },
+};
+
+const startSessionPayload = {
+  session: aiSessionFixture,
+  workout: workoutFixture,
+  weekNumber: 1,
+  sessionIndex: 0,
 };
 
 beforeEach(() => {
@@ -47,7 +68,7 @@ describe('useWorkout — après startSession', () => {
     const { result } = renderHook(() => useWorkout());
 
     act(() => {
-      result.current.startSession(workoutFixture);
+      result.current.startSession(startSessionPayload);
     });
 
     expect(result.current.sessionActive).toBe('wk-42');
@@ -60,7 +81,7 @@ describe('useWorkout — après startSession', () => {
     const { result } = renderHook(() => useWorkout());
 
     act(() => {
-      result.current.startSession(workoutFixture);
+      result.current.startSession(startSessionPayload);
     });
     act(() => {
       result.current.nextExercise();
@@ -77,7 +98,7 @@ describe('useWorkout — currentExerciseSets', () => {
     const { result } = renderHook(() => useWorkout());
 
     act(() => {
-      result.current.startSession(workoutFixture);
+      result.current.startSession(startSessionPayload);
     });
     act(() => {
       result.current.logSet({
@@ -105,16 +126,33 @@ describe('useWorkout — currentExerciseSets', () => {
 });
 
 describe('useWorkout — finishSession', () => {
-  it('remet tout à zéro via le hook', () => {
+  it('passe la phase à "completed" via le hook (state préservé pour stats)', () => {
     const { result } = renderHook(() => useWorkout());
 
     act(() => {
-      result.current.startSession(workoutFixture);
+      result.current.startSession(startSessionPayload);
     });
     act(() => {
       result.current.finishSession();
     });
 
+    expect(result.current.phase).toBe('completed');
+    expect(result.current.sessionActive).toBe('wk-42');
+  });
+});
+
+describe('useWorkout — resetSession', () => {
+  it('remet tout à zéro via le hook', () => {
+    const { result } = renderHook(() => useWorkout());
+
+    act(() => {
+      result.current.startSession(startSessionPayload);
+    });
+    act(() => {
+      result.current.resetSession();
+    });
+
+    expect(result.current.phase).toBe('idle');
     expect(result.current.sessionActive).toBeNull();
     expect(result.current.currentExercise).toBeNull();
     expect(result.current.sets).toHaveLength(0);
