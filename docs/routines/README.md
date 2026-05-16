@@ -31,7 +31,12 @@
 └─────────────────────────┬───────────────────────────────────────┘
                           │ (si MR3 ✅ + MR4 ✅)
                           ▼
-                     Auto-merge (humain valide v1.0)
+┌─────────────────────────────────────────────────────────────────┐
+│  Lun→Ven 17:00 UTC  MR8 Auto-Merger                             │
+│      ↓                                                          │
+│  Lit verdict MR4 → fix inline les MED → rebase → squash merge   │
+│  (HIGH = escalade humaine ; cap 5 PR/run)                       │
+└─────────────────────────────────────────────────────────────────┘
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -73,6 +78,7 @@
 | MR5 | [routine-mr5-eas-build.md](routine-mr5-eas-build.md) | Ven 18:00 | 1 build/sem | Issue avec lien EAS preview |
 | MR6 | [routine-mr6-sentry-triage.md](routine-mr6-sentry-triage.md) | Tous les jours 07:00 | 5 issues max/run | Commentaire plan AVANT fix |
 | MR7 | [routine-mr7-web-sync.md](routine-mr7-web-sync.md) | Dim 22:00 | — | PR `chore: sync from web` si drift |
+| MR8 | [routine-mr8-auto-merger.md](routine-mr8-auto-merger.md) | Lun→Ven 17:00 UTC | 5 PR max/run | Fix MED inline + squash merge des PRs reviewées par MR4 |
 
 ---
 
