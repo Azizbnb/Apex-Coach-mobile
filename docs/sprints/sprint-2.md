@@ -2,37 +2,19 @@
 
 > **Source de vérité :** `docs/sprints/WEB_FLOW_AUDIT.md` (sections 5.14 à 5.17 + 6.1 à 6.4 + 7.1 à 7.5 et 7.9 à 7.10)
 > **Livrable :** miroir complet du flow web `/programme`, `/entrainement` (+ session/[id] redirect), `/nutrition`, `/nutrition` preferences (Sprint 3) et de leurs modals/banners.
-> **Total tickets :** 26 (14 livrés par PRs #29/#30/#31, 2 partiels à finaliser, 10 todo).
+> **Total tickets :** 26 (17 livrés via PRs #6/#7/#8/#9/#10/#20/#21/#22/#23/#24/#25/#26/#27/#28/#29/#31, 9 todo : T13, T14, T19-T25).
 > **PRs livrées :** [#29](https://github.com/Azizbnb/Apex-Coach-mobile/pull/29) (assemblage Programme/Session detail), [#30](https://github.com/Azizbnb/Apex-Coach-mobile/pull/30) (icons + routes FR), [#31](https://github.com/Azizbnb/Apex-Coach-mobile/pull/31) (flow workout 6 phases).
 
 ---
 
 ## A — Infrastructure tests / lint (prérequis MR2)
 
-### S2-T00: Setup Jest + ESLint + Prettier (PRÉREQUIS MR2 — bloquant absolu)
+### S2-T00: Setup Jest + ESLint + Prettier (PRÉREQUIS MR2)
 
-- **Statut :** todo
+- **Statut :** done — livré (vérifié 2026-05-16 : devDeps, configs, scripts et `__tests__/`, `__mocks__/` tous en place)
 - **Estimation :** M (~150 LOC, low)
-- **Dépendances :** aucune (priorité 1 absolue — sans ce ticket, MR2 échoue à STEP 6 sur `npx jest` ET `npx eslint`)
-- **Fichiers :** `package.json` (devDependencies + scripts), `jest.config.js`, `jest.setup.ts`, `__tests__/components/ui/Button.test.tsx`, `.eslintrc.js`, `.eslintignore`, `.prettierrc.js`
-- **Critères d'acceptance — Jest :**
-  - [ ] devDependencies : `jest`, `jest-expo`, `@testing-library/react-native`, `@types/jest`, `react-test-renderer` (compatibles RN 0.83 / React 19)
-  - [ ] `jest.config.js` : `preset: 'jest-expo'`, `transformIgnorePatterns` pour RN/Expo/Supabase, `moduleNameMapper` pour `@/*`, `setupFilesAfterEach: ['<rootDir>/jest.setup.ts']`
-  - [ ] `jest.setup.ts` : mocks `expo-router`, `expo-secure-store`, `@supabase/supabase-js`
-  - [ ] Smoke test `__tests__/components/ui/Button.test.tsx` vert
-  - [ ] Scripts : `"test": "jest"`, `"test:watch": "jest --watch"`, `"test:coverage": "jest --coverage"`
-  - [ ] `npx jest --silent` retourne `0`
-- **Critères d'acceptance — ESLint :**
-  - [ ] devDependencies : `eslint`, `eslint-config-expo`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`
-  - [ ] `.eslintrc.js` : `extends: ['expo']`, no `as any` interdit, no `console.log` warning, `react-hooks/rules-of-hooks` error
-  - [ ] `npx eslint . --ext .ts,.tsx` retourne `0` sur le code Sprint 1 existant
-- **Critères d'acceptance — Prettier :**
-  - [ ] `prettier` + `eslint-config-prettier`
-  - [ ] `.prettierrc.js` aligné web (singleQuote, trailingComma all, printWidth 100, semi true)
-  - [ ] Scripts : `"format"`, `"format:check"`
-- **Critères d'acceptance — global :**
-  - [ ] `npm test && npm run lint && npm run format:check` tous verts en chaîne
-- **Notes :** référence `.claude/skills/apex-mobile-test/SKILL.md`. **Sans ce ticket complet, MR2 + MR4 hit `mr2-blocked` au 1er run.**
+- **Fichiers :** `package.json` (devDeps + scripts), `jest.config.js`, `jest.setup.ts`, `.eslintrc.js`, `.eslintignore`, `.prettierrc.js`, `__mocks__/react-native-reanimated.js`, `__tests__/{components,hooks,stores}/`
+- **Notes :** infrastructure tests/lint/format complète. devDeps actuelles : `jest@^29.7.0`, `jest-expo@^55.0.16`, `@testing-library/react-native@^13.3.3`, `@types/jest@^29.5.14`, `react-test-renderer@^19.2.0`, `eslint@^8.57.1`, `eslint-config-expo@^55.0.0`, `@typescript-eslint/{parser,eslint-plugin}@^7.18.0`, `eslint-config-prettier@^9.1.2`, `prettier@^3.8.3`. Mocks globaux : `expo-router`, `expo-secure-store`, `@supabase/supabase-js`, `react-native-reanimated`.
 
 ---
 
@@ -203,14 +185,8 @@
 
 ### S2-T17: Tests unitaires `RecipeDetail` + `ShoppingList`
 
-- **Statut :** todo
-- **Estimation :** S (~120 LOC, low)
-- **Dépendances :** S2-T00 (Jest setup), S2-T11 (mergé)
+- **Statut :** done — livré PR #26
 - **Fichiers :** `__tests__/components/nutrition/RecipeDetail.test.tsx`, `__tests__/components/nutrition/ShoppingList.test.tsx`
-- **Critères d'acceptance :**
-  - [ ] `RecipeDetail` : 4 tests (modal masqué si `food=null`, rendu macros, calories, bouton fermeture)
-  - [ ] `ShoppingList` : 5 tests (modal masqué si `visible=false`, agrégation quantités, compteur, ordre alpha, bouton fermeture)
-  - [ ] `npx jest --silent components/nutrition` retourne 0
 - **Notes :** résout LOW-1 PR #10. Aligne couverture avec `MacroSummary` et `MealPlanCard`.
 
 ### S2-T23: Mirror `MacroRings` (anneaux SVG concentriques)
@@ -270,32 +246,36 @@
 
 ### S2-T13: Composant `TrialBanner` + countdown
 
-- **Statut :** done partiel — `hooks/useTrialCountdown.ts` à finaliser si pas encore en place
+- **Statut :** todo (vérifié 2026-05-16 : aucun fichier `components/subscription/TrialBanner.tsx` ni `hooks/useTrialCountdown.ts` n'existe encore)
 - **Estimation :** S (~100 LOC, low)
+- **Dépendances :** aucune
 - **Fichiers :** `components/subscription/TrialBanner.tsx`, `hooks/useTrialCountdown.ts`
+- **Critères d'acceptance :**
+  - [ ] Affichage conditionnel via `useSubscription().isTrial === true`
+  - [ ] Compte les jours + heures restants jusqu'à `current_period_end` (mis à jour chaque minute)
+  - [ ] Style cohérent : neutre J-7+, orange J-3 → J-1, rouge J-0
+  - [ ] Tap → ouvre `(modals)/paywall` avec trigger `trial_expiring` (S3-T20)
+  - [ ] 2 tests (rendu conditionnel + countdown formaté)
 - **Mirror web :** `components/subscription/TrialExpiryBanner.tsx`
-- **Notes :** affiché si `useSubscription().isTrial === true`. Compte j+h jusqu'à `current_period_end`. Tap → ouvre paywall info (Sprint 3).
 
 ### S2-T14: Composant `PromoExpiryBanner`
 
-- **Statut :** done partiel — affichage placeholder, brancher trigger + J-7 styling
+- **Statut :** todo (vérifié 2026-05-16 : aucun fichier `components/subscription/PromoExpiryBanner.tsx` n'existe encore)
 - **Estimation :** S (~80 LOC, low)
+- **Dépendances :** aucune
 - **Fichiers :** `components/subscription/PromoExpiryBanner.tsx`
+- **Critères d'acceptance :**
+  - [ ] Affichage conditionnel via `useSubscription().isPromo === true`
+  - [ ] Orange J-7+, rouge J-1
+  - [ ] Tap → ouvre `(modals)/paywall` avec trigger `promo_expiring` (S3-T20)
+  - [ ] Test : rendu + style selon proximité expiration
 - **Mirror web :** `components/subscription/PromoExpiryBanner.tsx`
-- **Notes :** orange si J-7 avant expiration, rouge si J-1. Tap → paywall info.
 
 ### S2-T18: Tech debt cosmétique — LOWs PRs #8 / #9
 
-- **Statut :** todo
-- **Estimation :** S (~30 LOC, low)
-- **Dépendances :** aucune
-- **Fichiers :** `components/programme/WeekCard.tsx`, `components/programme/__tests__/WeekCard.test.tsx` (à déplacer), `__mocks__/react-native-reanimated.js`
-- **Critères d'acceptance :**
-  - [ ] Retirer le `as never` ligne 34 de `WeekCard.tsx` (utiliser `Href` de `expo-router`)
-  - [ ] Déplacer `components/programme/__tests__/WeekCard.test.tsx` vers `__tests__/components/programme/WeekCard.test.tsx`
-  - [ ] Documenter la surface du mock `__mocks__/react-native-reanimated.js`
-  - [ ] `npx jest --silent` + `npx eslint . --ext .ts,.tsx` verts
-- **Notes :** résout LOW-1, LOW-2 PR #8 + LOW-1 PR #9.
+- **Statut :** done — livré PR #25
+- **Fichiers :** `components/programme/WeekCard.tsx`, `__tests__/components/programme/WeekCard.test.tsx`, `__mocks__/react-native-reanimated.js`
+- **Notes :** résout LOW-1, LOW-2 PR #8 + LOW-1 PR #9. Typage `Href`, migration test vers structure standard, JSDoc surface du mock reanimated.
 
 ---
 
@@ -310,7 +290,6 @@ S2-T11 ──► S2-T23 (MacroRings) + S2-T24 (ShoppingList catégories) + S2-T2
 
 ## Sortie de sprint
 
-- **10 tickets `todo` à planifier** : T00 (Jest setup), T17 (tests nutrition), T18 (tech debt LOWs), T19 (drag-drop prep), T20 (modal vidéo), T21 (timer libre), T22 (intégration banners Programme), T23 (MacroRings SVG), T24 (ShoppingList catégories + Supplements), T25 (NutritionGenerationProgress).
-- **2 tickets `done partiel` à finaliser** : T13 (TrialBanner + countdown), T14 (PromoExpiryBanner trigger).
-- **14 tickets `done` consolidés** (T01, T02, T03, T04, T05, T06, T07, T08, T09, T10, T11, T12, T15, T16) — conservés dans le fichier pour la traçabilité MR1.
+- **9 tickets `todo` à planifier** : T13 (TrialBanner), T14 (PromoExpiryBanner), T19 (drag-drop prep), T20 (modal vidéo), T21 (timer libre), T22 (intégration banners Programme), T23 (MacroRings SVG), T24 (ShoppingList catégories + Supplements), T25 (NutritionGenerationProgress).
+- **17 tickets `done` consolidés** : T00 (PR #6 infra), T01 (#8), T02 (#21), T03 (#22), T04 (#9), T05 (#29), T06 (#29), T07 (#7), T08 (#23), T09 (#24), T10 (#29 + refonte #31), T11 (#10), T12 (#28), T15 (#20), T16 (#27), T17 (#26), T18 (#25) — conservés dans le fichier pour la traçabilité MR1.
 - Vérification end-of-sprint : ouvrir le tab Programme + tab Entraînement + tab Nutrition sur device → flow web miroir complet, modals OK, banners conditionnels OK, drag-drop + vidéo + timer libre opérationnels.

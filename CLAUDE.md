@@ -423,7 +423,7 @@ Voir [`docs/routines/README.md`](docs/routines/README.md) §"Pré-requis techniq
 | Sprint | Contenu | Statut |
 |--------|---------|--------|
 | **Sprint 1** | Fondations (Expo, auth, navigation, stores, UI, types) | **Terminé (16/03/2026)** |
-| **Sprint 2** | Dashboard + Programme + Workout actif **6 phases** + Nutrition + Affiliés + Banners (mirror `/programme`, `/entrainement`, `/nutrition`) | **En cours** — PRs #29/#30/#31 mergées (14 tickets), 10 tickets restants (Jest setup + 3 correctifs flow workout + polish nutrition + intégration banners) |
+| **Sprint 2** | Dashboard + Programme + Workout actif **6 phases** + Nutrition + Affiliés + Banners (mirror `/programme`, `/entrainement`, `/nutrition`) | **En cours** — 17 tickets done via 16 PRs (T00 infra + T01-T12 + T15-T18), 9 restants : 2 banners (TrialBanner, PromoExpiryBanner) + 3 correctifs flow workout (drag-drop, modal vidéo, timer libre) + 4 polish nutrition (MacroRings, ShoppingList catégories, NutritionGenerationProgress, banners Programme) |
 | Sprint 3 | Welcome + Auth deep links + Questionnaire 24 micro-steps + Redeem + Paywall **info-only** + Nutrition preferences + Attribution + Tutoriel (mirror `(auth)/*`, `auth/*`, `questionnaire/*`, `redeem`, `nutrition/preferences`) | À planifier — 26 tickets |
 | Sprint 4 | Bilan modal + Tab Bilan (analytics) + Profil + Settings complet + Reviews + Notifications push + Sentry (mirror `/bilan`, `/analytics`, `/profil`, `/settings`) | À planifier — 20 tickets |
 | Sprint 5 | Publication TestFlight + Play Internal + ASO + .well-known + buffer review | À planifier — 8 tickets |

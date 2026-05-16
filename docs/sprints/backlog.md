@@ -35,12 +35,12 @@ Chaque ticket suit ce gabarit (parsable par MR1) :
 | Sprint | Fichier | Thème | Tickets | Statut |
 |--------|---------|-------|---------|--------|
 | 1 | — | Fondations Expo + auth + nav + UI + stores | — | **Terminé (16/03/2026)** |
-| 2 | [sprint-2.md](sprint-2.md) | Dashboard + Programme + Workout actif (6 phases) + Nutrition + Affiliés + Banners | 26 tickets (14 done PR #29/#30/#31, 2 done partiel, 10 todo dont 3 correctifs flow workout) | En cours |
+| 2 | [sprint-2.md](sprint-2.md) | Dashboard + Programme + Workout actif (6 phases) + Nutrition + Affiliés + Banners | 26 tickets (17 done via 16 PRs déjà mergées, 9 todo : 2 banners T13/T14 + 3 correctifs flow workout T19-T21 + 4 polish nutrition T22-T25) | En cours |
 | 3 | [sprint-3.md](sprint-3.md) | Welcome + Onboarding + Questionnaire 24 micro-steps + Redeem + Paywall info + Auth deep links + Attribution + Tutoriel | 26 tickets (modèle Netflix : zéro IAP, zéro prix affiché, conversion via WebBrowser uniquement) | À planifier |
 | 4 | [sprint-4.md](sprint-4.md) | Bilan modal + Tab Bilan (analytics) + Profil + Settings (objectif, jeûne, mdp, RGPD, delete, reviews) + Notifications push + Sentry | 20 tickets | À planifier |
 | 5 | [sprint-5.md](sprint-5.md) | Publication TestFlight + Play Internal + ASO + .well-known + buffer review stores | 8 tickets | À planifier |
 
-**Total :** 80 tickets (dont 14 déjà mergés via PRs #29/#30/#31). Reste à livrer : ~66 tickets — cible : < 7 semaines en routine continue 2 PR/jour.
+**Total :** 80 tickets (dont 17 déjà mergés via 16 PRs Sprint 2). Reste à livrer : 63 tickets (9 Sprint 2 + 26 Sprint 3 + 20 Sprint 4 + 8 Sprint 5) — cible : < 7 semaines en routine continue 2 PR/jour.
 
 > **Décision finale 04/05/2026** : **App 100% gratuite, modèle Netflix.** Le paiement reste Stripe sur `apexcoach.app` uniquement. L'app permet signup + trial + redeem mais aucun paiement in-app, aucune mention de prix. 0% commission Apple/Google. Voir `docs/AUDIT_PHASE_0.md` §5 et `WEB_FLOW_AUDIT.md` §9.
 
