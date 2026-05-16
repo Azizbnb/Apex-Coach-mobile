@@ -51,7 +51,7 @@
 - **Statut :** todo
 - **Estimation :** L (~300 LOC, med)
 - **Dépendances :** S4-T04
-- **Fichiers :** `app/(tabs)/progress/index.tsx`
+- **Fichiers :** `app/(tabs)/bilan/index.tsx`
 - **Critères d'acceptance :**
   - [ ] Charts : adhésion, volume, progression poids (Recharts ou Victory Native)
   - [ ] Historique bilans hebdo
