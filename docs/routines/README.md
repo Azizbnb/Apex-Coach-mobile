@@ -84,13 +84,19 @@
 
 ## Phasage de l'activation
 
-L'activation respecte un ordre de risque croissant (validé dans le plan de session 03/05/2026) :
+**État actuel (16/05/2026) :** 3 routines actives (`MR1`, `MR2`, `MR8`). Activation des 5 restantes (`MR3`, `MR4`, `MR5`, `MR6`, `MR7`) planifiée dans [`ACTIVATION_PLAN_MR3-MR7.md`](ACTIVATION_PLAN_MR3-MR7.md) (validé 16/05/2026).
 
-1. **Phase C — pilote** : `MR6` seule pendant 48h pour valider l'écosystème (zéro risque, juste des commentaires)
-2. **Phase D.1** : `MR1` + `MR2` + `MR4` (chaîne plan→code→review)
-3. **Phase D.2** : `MR3` (visual QA, Playwright headless)
-4. **Phase D.3** : `MR5` (EAS Build) + `MR7` (web sync)
-5. **Phase E — observation continue** : 1 sprint complet (Sprint 2 mobile) pour valider la boucle
+Ordre d'activation (risque croissant) :
+
+1. **Phase 0** : vérification pré-requis (Playwright, EAS_TOKEN, repo web clonable, branch protection) — read-only
+2. **Phase 1 — pilote** : `MR6` Sentry Triage seule, 48h observation (zéro risque, écrit seulement des commentaires)
+3. **Phase 2** : `MR4` Code Review (review-only, sur PRs ouvertes)
+4. **Phase 3** : `MR3` Visual QA (Playwright + Expo Web)
+5. **Phase 4.1** : `MR5` EAS Build hebdo (vendredi)
+6. **Phase 4.2** : `MR7` Web Sync hebdo (dimanche)
+7. **Phase 5 — observation continue** : 1 sprint complet (Sprint 2 reprise) pour valider la boucle complète
+
+> Voir `ACTIVATION_PLAN_MR3-MR7.md` pour le détail de chaque phase + critères de réussite + rollback.
 
 ---
 
