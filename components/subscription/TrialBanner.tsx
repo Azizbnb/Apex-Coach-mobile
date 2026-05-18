@@ -1,4 +1,5 @@
 import { View, Pressable } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { Clock } from 'lucide-react-native';
 import { Text } from '@/components/ui/Text';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -53,9 +54,10 @@ export function TrialBanner() {
   const message = isExpired ? 'Ton essai gratuit est terminé' : `Essai gratuit — ${label}`;
   const cta = 'Continuer sur apexcoach.app →';
 
-  const handleTap = () => {
-    // S3-T20 : ouverture du modal paywall — à activer quand /(modals)/paywall existe
-    // router.push('/(modals)/paywall?trigger=trial_expiring');
+  const handleTap = async () => {
+    await WebBrowser.openBrowserAsync(
+      'https://www.apexcoach.app/pricing?utm_source=ios_app&utm_medium=app&utm_campaign=trial_banner'
+    );
   };
 
   return (
