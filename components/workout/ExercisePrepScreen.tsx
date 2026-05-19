@@ -1,97 +1,145 @@
+import { useState, useCallback, useMemo } from 'react';
 import { View, ScrollView } from 'react-native';
-import { Play, GripVertical } from 'lucide-react-native';
+import { useSharedValue, runOnJS } from 'react-native-reanimated';
+import { Gesture } from 'react-native-gesture-handler';
+import * as Haptics from 'expo-haptics';
+import { Play } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { SortableExerciseItem, ITEM_HEIGHT } from '@/components/workout/SortableExerciseItem';
+import { useWorkoutStore } from '@/stores/workout';
 import { colors } from '@/lib/constants';
 import type { Exercise } from '@/types';
 
 interface ExercisePrepScreenProps {
-  sessionLabel: string; // ex: "LUNDI — FORCE"
+  sessionLabel: string;
   exercises: Exercise[];
   onStart: () => void;
 }
 
-function formatRest(seconds: number): string {
-  if (seconds >= 60) {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return s === 0 ? `${m} min` : `${m}m${s}s`;
-  }
-  return `${seconds}s`;
-}
-
-/**
- * Écran de préparation affiché avant le démarrage des exercices.
- * Mirror du composant web `ExercisePrepScreen.tsx`.
- *
- * Note v1 : le drag-and-drop pour réordonner les exercices n'est pas
- * implémenté en mobile pour ce MVP (suit en v2 via react-native-reanimated +
- * react-native-gesture-handler). L'ordre affiché est celui généré par l'IA.
- */
 export function ExercisePrepScreen({
   sessionLabel,
   exercises,
   onStart,
 }: ExercisePrepScreenProps) {
+  const reorderExercises = useWorkoutStore((s) => s.reorderExercises);
+  const [localOrder, setLocalOrder] = useState<Exercise[]>(exercises);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+  const activeIndex = useSharedValue(-1);
+  const dragY = useSharedValue(0);
+
+  const commitReorder = useCallback(
+    (from: number, to: number) => {
+      activeIndex.value = -1;
+      dragY.value = 0;
+      setActiveIdx(null);
+      if (from === to) return;
+      setLocalOrder((prev) => {
+        const next = [...prev];
+        const [moved] = next.splice(from, 1);
+        next.splice(to, 0, moved);
+        reorderExercises(next);
+        return next;
+      });
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    },
+    [reorderExercises, activeIndex, dragY],
+  );
+
+  const createGesture = useCallback(
+    (fromIndex: number, total: number) =>
+      Gesture.Pan()
+        .activateAfterLongPress(200)
+        .onStart(() => {
+          'worklet';
+          activeIndex.value = fromIndex;
+          dragY.value = 0;
+          runOnJS(setActiveIdx)(fromIndex);
+        })
+        .onUpdate((e) => {
+          'worklet';
+          dragY.value = e.translationY;
+        })
+        .onEnd(() => {
+          'worklet';
+          const toIndex = Math.round(
+            Math.max(0, Math.min(total - 1, fromIndex + dragY.value / ITEM_HEIGHT)),
+          );
+          runOnJS(commitReorder)(fromIndex, toIndex);
+        }),
+    [activeIndex, dragY, commitReorder],
+  );
+
+  const gestures = useMemo(
+    () => localOrder.map((_, idx) => createGesture(idx, localOrder.length)),
+    [localOrder, createGesture],
+  );
+
+  const moveItem = useCallback(
+    (from: number, direction: 1 | -1) => {
+      const to = from + direction;
+      if (to < 0 || to >= localOrder.length) return;
+      setLocalOrder((prev) => {
+        const next = [...prev];
+        [next[from], next[to]] = [next[to], next[from]];
+        reorderExercises(next);
+        return next;
+      });
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    },
+    [localOrder.length, reorderExercises],
+  );
+
   return (
     <View className="flex-1">
       <ScrollView
         className="flex-1 px-4"
         contentContainerStyle={{ paddingBottom: 32 }}
+        scrollEnabled={activeIdx === null}
       >
-        {/* Badge session */}
         <View className="items-center mt-4 mb-2">
           <Badge label={sessionLabel} variant="premium" />
         </View>
-
         <Text variant="h1" className="text-white text-center mt-3 mb-2">
           Prêt pour la séance ?
         </Text>
         <Text variant="caption" className="text-apex-black-400 text-center mb-6">
-          Vérifie l'ordre des exercices avant de te lancer.
+          Maintiens et glisse l'icône pour réordonner les exercices.
         </Text>
 
-        {/* Liste numérotée */}
         <View className="gap-2">
-          {exercises.map((ex, idx) => (
-            <View
+          {localOrder.map((ex, idx) => (
+            <SortableExerciseItem
               key={ex.id}
-              className="flex-row items-center gap-3 bg-apex-black-800 rounded-xl px-3 py-3 border border-apex-black-700"
-            >
-              <GripVertical size={18} color={colors.black[400]} />
-              <View className="w-8 h-8 rounded-full bg-apex-lime-500/15 border border-apex-lime-500/30 items-center justify-center">
-                <Text variant="caption" className="text-apex-lime-500 font-bold">
-                  {idx + 1}
-                </Text>
-              </View>
-              <View className="flex-1">
-                <Text variant="body" className="text-white font-semibold">
-                  {ex.name}
-                </Text>
-                <Text variant="caption" className="text-apex-black-400">
-                  {ex.sets} séries · {ex.reps} reps · {formatRest(ex.rest_seconds)} repos
-                </Text>
-              </View>
-            </View>
+              exercise={ex}
+              index={idx}
+              total={localOrder.length}
+              isActive={activeIdx === idx}
+              activeIndex={activeIndex}
+              dragY={dragY}
+              panGesture={gestures[idx]}
+              onMoveUp={() => moveItem(idx, -1)}
+              onMoveDown={() => moveItem(idx, 1)}
+            />
           ))}
         </View>
       </ScrollView>
 
-      {/* CTA fixe en bas */}
       <View className="px-4 pb-6 pt-3 border-t border-apex-black-700 bg-apex-black-900">
         <Button
           variant="primary"
           onPress={onStart}
-          accessibilityLabel={`Démarrer la séance, ${exercises.length} exercices`}
+          accessibilityLabel={`Démarrer la séance, ${localOrder.length} exercices`}
         >
           {`▷  C'est parti !`}
         </Button>
         <View className="flex-row items-center justify-center gap-1.5 mt-3">
           <Play size={12} color={colors.black[400]} />
           <Text variant="caption" className="text-apex-black-400">
-            {exercises.length} exercice{exercises.length > 1 ? 's' : ''} au programme
+            {localOrder.length} exercice{localOrder.length > 1 ? 's' : ''} au programme
           </Text>
         </View>
       </View>

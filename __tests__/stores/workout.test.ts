@@ -179,6 +179,29 @@ describe('useWorkoutStore — resetSession', () => {
   });
 });
 
+describe('useWorkoutStore — reorderExercises', () => {
+  it("met à jour l'ordre des exercices et remet les statuts à 'pending'", () => {
+    useWorkoutStore.getState().startSession(startSessionPayload);
+
+    const reversed = [
+      { id: 'ex-2', name: 'Dips', sets: 3, reps: 12, rest_seconds: 60 },
+      { id: 'ex-1', name: 'Développé couché', sets: 4, reps: 10, rest_seconds: 90 },
+    ];
+    useWorkoutStore.getState().reorderExercises(reversed);
+
+    const state = useWorkoutStore.getState();
+    expect(state.currentWorkout?.exercises[0].id).toBe('ex-2');
+    expect(state.currentWorkout?.exercises[1].id).toBe('ex-1');
+    expect(state.exerciseStatuses).toEqual(['pending', 'pending']);
+    expect(state.currentExerciseIndex).toBe(0);
+  });
+
+  it('ne modifie pas le state si currentWorkout est null', () => {
+    useWorkoutStore.getState().reorderExercises([]);
+    expect(useWorkoutStore.getState().currentWorkout).toBeNull();
+  });
+});
+
 describe('useWorkoutStore — timer', () => {
   it('setTimer définit la valeur exacte', () => {
     useWorkoutStore.getState().setTimer(90);
