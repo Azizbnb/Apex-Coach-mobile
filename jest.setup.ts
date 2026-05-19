@@ -37,3 +37,28 @@ jest.mock('@supabase/supabase-js', () => ({
 
 // react-native-reanimated est mocké via __mocks__/react-native-reanimated.js
 jest.mock('react-native-reanimated');
+
+jest.mock('react-native-gesture-handler', () => {
+  const { View } = require('react-native');
+  const makeGesture = () => {
+    const g: Record<string, unknown> = {};
+    g['activateAfterLongPress'] = jest.fn(() => g);
+    g['onStart'] = jest.fn(() => g);
+    g['onUpdate'] = jest.fn(() => g);
+    g['onEnd'] = jest.fn(() => g);
+    g['withRef'] = jest.fn(() => g);
+    return g;
+  };
+  return {
+    GestureHandlerRootView: View,
+    GestureDetector: View,
+    Gesture: { Pan: makeGesture, Tap: makeGesture },
+  };
+});
+
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn().mockResolvedValue(undefined),
+  notificationAsync: jest.fn().mockResolvedValue(undefined),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+}));
