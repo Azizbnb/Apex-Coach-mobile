@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, ScrollView } from 'react-native';
 import { useSharedValue, runOnJS } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
@@ -73,6 +73,11 @@ export function ExercisePrepScreen({
     [activeIndex, dragY, commitReorder],
   );
 
+  const gestures = useMemo(
+    () => localOrder.map((_, idx) => createGesture(idx, localOrder.length)),
+    [localOrder, createGesture],
+  );
+
   const moveItem = useCallback(
     (from: number, direction: 1 | -1) => {
       const to = from + direction;
@@ -115,7 +120,7 @@ export function ExercisePrepScreen({
               isActive={activeIdx === idx}
               activeIndex={activeIndex}
               dragY={dragY}
-              panGesture={createGesture(idx, localOrder.length)}
+              panGesture={gestures[idx]}
               onMoveUp={() => moveItem(idx, -1)}
               onMoveDown={() => moveItem(idx, 1)}
             />
