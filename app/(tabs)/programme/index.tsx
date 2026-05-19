@@ -3,6 +3,10 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 
 import { SafeView } from '@/components/ui/SafeView';
 import { WeekCard } from '@/components/programme/WeekCard';
+import { FastingBanner } from '@/components/programme/FastingBanner';
+import { NextUnlockBanner } from '@/components/programme/NextUnlockBanner';
+import { EquipmentRecs } from '@/components/affiliate/EquipmentRecs';
+import { useAuthStore } from '@/stores/auth';
 import { useProgramStore } from '@/stores/program';
 import { useSubscriptionStore } from '@/stores/subscription';
 import {
@@ -18,10 +22,19 @@ function daysBetween(from: Date, to: Date): number {
   return Math.ceil(ms / (1000 * 60 * 60 * 24));
 }
 
+function isFastingActive(profile: ReturnType<typeof useAuthStore.getState>['profile']): boolean {
+  if (!profile?.is_fasting_mode) return false;
+  const { fasting_start_date, fasting_end_date } = profile;
+  if (!fasting_start_date || !fasting_end_date) return true;
+  const now = Date.now();
+  return now >= new Date(fasting_start_date).getTime() && now <= new Date(fasting_end_date).getTime();
+}
+
 export default function ProgrammeScreen() {
   const { program, loading, fetch } = useProgramStore();
   const subscriptionFetch = useSubscriptionStore((s) => s.fetch);
   const planId = useSubscriptionStore((s) => s.planId);
+  const profile = useAuthStore((s) => s.profile);
 
   useEffect(() => {
     fetch();
@@ -42,6 +55,22 @@ export default function ProgrammeScreen() {
     if (!program || !isAIProgramData(program.program_data)) return [];
     return program.program_data.weeks;
   }, [program]);
+
+  const isProgressive = shouldApplyProgressiveUnlock(currentPlanId);
+
+  // Prochaine semaine verrouillée (pour NextUnlockBanner) — avant tout return conditionnel
+  const nextLockedWeek = useMemo(() => {
+    if (!isProgressive || !startDate || weeks.length === 0) return null;
+    for (const week of weeks) {
+      if (!isWeekUnlocked(startDate, week.week_number)) {
+        return { weekNumber: week.week_number, unlockDate: getUnlockDateForWeek(startDate, week.week_number) };
+      }
+    }
+    return null;
+  }, [isProgressive, startDate, weeks]);
+
+  const showFasting = isFastingActive(profile);
+  const showEquipmentRecs = !!program;
 
   if (loading) {
     return (
@@ -69,8 +98,6 @@ export default function ProgrammeScreen() {
     );
   }
 
-  const isProgressive = shouldApplyProgressiveUnlock(currentPlanId);
-
   return (
     <SafeView>
       <ScrollView
@@ -83,6 +110,22 @@ export default function ProgrammeScreen() {
         <Text className="text-apex-black-400 mb-6">
           {program.description || `Programme ${program.duration_weeks} semaines`}
         </Text>
+
+        {showFasting && (
+          <FastingBanner
+            fastingLevel={profile?.fasting_level}
+            fastingEndDate={profile?.fasting_end_date}
+            className="mb-4"
+          />
+        )}
+
+        {nextLockedWeek && (
+          <NextUnlockBanner
+            weekNumber={nextLockedWeek.weekNumber}
+            unlockDate={nextLockedWeek.unlockDate}
+            className="mb-4"
+          />
+        )}
 
         {weeks.length === 0 ? (
           <View className="bg-apex-black-800 rounded-xl p-4 mb-4 border border-apex-black-700">
@@ -122,6 +165,10 @@ export default function ProgrammeScreen() {
               );
             })}
           </View>
+        )}
+
+        {showEquipmentRecs && (
+          <EquipmentRecs sourcePage="programme" className="mt-4" />
         )}
       </ScrollView>
     </SafeView>
