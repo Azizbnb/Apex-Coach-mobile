@@ -7,6 +7,7 @@ interface MacroSummaryProps extends ViewProps {
   carbs: number;
   fats: number;
   className?: string;
+  hideHeader?: boolean;
 }
 
 interface MacroDef {
@@ -28,6 +29,7 @@ export function MacroSummary({
   carbs,
   fats,
   className = '',
+  hideHeader = false,
   ...props
 }: MacroSummaryProps) {
   const values = { protein, carbs, fats };
@@ -39,12 +41,14 @@ export function MacroSummary({
       className={`bg-apex-black-800 rounded-2xl p-4 border border-apex-black-700 ${className}`}
       {...props}
     >
-      <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-white font-bold text-base">Macros du jour</Text>
-        <Text className="text-apex-lime-500 font-bold text-lg">
-          {calories} kcal
-        </Text>
-      </View>
+      {!hideHeader && (
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-white font-bold text-base">Macros du jour</Text>
+          <Text className="text-apex-lime-500 font-bold text-lg">
+            {calories} kcal
+          </Text>
+        </View>
+      )}
 
       {MACROS.map(({ key, label, color, calPerGram }) => {
         const grams = values[key];
