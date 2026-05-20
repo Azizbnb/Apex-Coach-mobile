@@ -38,6 +38,9 @@ jest.mock('@supabase/supabase-js', () => ({
 // react-native-reanimated est mocké via __mocks__/react-native-reanimated.js
 jest.mock('react-native-reanimated');
 
+// react-native-svg est mocké via __mocks__/react-native-svg.js
+jest.mock('react-native-svg');
+
 jest.mock('react-native-gesture-handler', () => {
   const { View } = require('react-native');
   const makeGesture = () => {
