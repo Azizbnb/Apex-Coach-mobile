@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import type { ViewProps } from 'react-native';
 import { MacroRingsChart } from '@/components/nutrition/MacroRingsChart';
@@ -66,7 +66,11 @@ export function MacroRings({
   className = '',
   ...props
 }: MacroRingsProps) {
-  const { macroViewMode, toggleMacroViewMode } = useSettings();
+  const { macroViewMode, toggleMacroViewMode, load } = useSettings();
+
+  useEffect(() => {
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const proteinesRatio = targetCalories > 0 ? (protein * 4) / targetCalories : 0;
   const glucidesRatio = targetCalories > 0 ? (carbs * 4) / targetCalories : 0;
