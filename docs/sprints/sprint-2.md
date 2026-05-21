@@ -64,7 +64,7 @@
 
 ### S2-T22: Intégrer `FastingBanner` + `EquipmentRecs` + `NextUnlockBanner` dans le tab Programme
 
-- **Statut :** todo
+- **Statut :** done — livré (issue #35 fermée, fichiers : `FastingBanner.tsx`, `NextUnlockBanner.tsx`, `programme/index.tsx` mis à jour)
 - **Estimation :** M (~180 LOC, low)
 - **Dépendances :** S2-T05 (mergé)
 - **Fichiers :** `app/(tabs)/programme/index.tsx`, `components/programme/FastingBanner.tsx` (nouveau), `components/programme/NextUnlockBanner.tsx` (nouveau)
@@ -111,7 +111,7 @@
 
 ### S2-T19: Drag-and-drop des exercices en phase `prep`
 
-- **Statut :** todo
+- **Statut :** done — livré (issue #32 fermée, fichiers : `SortableExerciseItem.tsx`, `ExercisePrepScreen.tsx` refactorisé)
 - **Estimation :** M (~180 LOC, med)
 - **Dépendances :** S2-T10 (mergé)
 - **Fichiers :** `components/workout/ExercisePrepScreen.tsx` (refacto), `components/workout/SortableExerciseItem.tsx` (nouveau)
@@ -143,7 +143,7 @@
 
 ### S2-T21: Timer libre dans `WorkoutTopBar` (mirror `WorkoutTimerStrip`)
 
-- **Statut :** todo
+- **Statut :** done — livré (issue #33 fermée, fichiers : `FreeTimer.tsx`, `WorkoutTopBar.tsx` mis à jour, `hooks/useFreeTimer.ts`)
 - **Estimation :** S (~120 LOC, low)
 - **Dépendances :** S2-T10 (mergé)
 - **Fichiers :** `components/workout/FreeTimer.tsx` (nouveau), `components/workout/WorkoutTopBar.tsx` (intégrer le bouton + état)
@@ -191,7 +191,7 @@
 
 ### S2-T23: Mirror `MacroRings` (anneaux SVG concentriques)
 
-- **Statut :** todo
+- **Statut :** done — livré (issue #34 fermée, fichiers : `MacroRings.tsx`, `MacroRingsChart.tsx`, `MacroSummary.tsx` mis à jour, `stores/settings.ts`)
 - **Estimation :** M (~180 LOC, med)
 - **Dépendances :** S2-T11 (mergé)
 - **Fichiers :** `components/nutrition/MacroRings.tsx` (nouveau, remplace `MacroSummary` ou en variante)
@@ -246,7 +246,7 @@
 
 ### S2-T13: Composant `TrialBanner` + countdown
 
-- **Statut :** todo (vérifié 2026-05-16 : aucun fichier `components/subscription/TrialBanner.tsx` ni `hooks/useTrialCountdown.ts` n'existe encore)
+- **Statut :** done — livré (issue #36 fermée, fichiers : `TrialBanner.tsx`, `hooks/useTrialCountdown.ts`)
 - **Estimation :** S (~100 LOC, low)
 - **Dépendances :** aucune
 - **Fichiers :** `components/subscription/TrialBanner.tsx`, `hooks/useTrialCountdown.ts`
@@ -290,6 +290,6 @@ S2-T11 ──► S2-T23 (MacroRings) + S2-T24 (ShoppingList catégories) + S2-T2
 
 ## Sortie de sprint
 
-- **9 tickets `todo` à planifier** : T13 (TrialBanner), T14 (PromoExpiryBanner), T19 (drag-drop prep), T20 (modal vidéo), T21 (timer libre), T22 (intégration banners Programme), T23 (MacroRings SVG), T24 (ShoppingList catégories + Supplements), T25 (NutritionGenerationProgress).
-- **17 tickets `done` consolidés** : T00 (PR #6 infra), T01 (#8), T02 (#21), T03 (#22), T04 (#9), T05 (#29), T06 (#29), T07 (#7), T08 (#23), T09 (#24), T10 (#29 + refonte #31), T11 (#10), T12 (#28), T15 (#20), T16 (#27), T17 (#26), T18 (#25) — conservés dans le fichier pour la traçabilité MR1.
+- **4 tickets `todo` restants** : T14 (PromoExpiryBanner), T20 (modal vidéo embarqué), T24 (ShoppingList catégories + Supplements), T25 (NutritionGenerationProgress) — pas encore d'issues GitHub créées, MR1 les créera au prochain cron lundi.
+- **22 tickets `done` consolidés** : T00 (#6), T01 (#8), T02 (#21), T03 (#22), T04 (#9), T05 (#29), T06 (#29), T07 (#7), T08 (#23), T09 (#24), T10 (#29+#31), T11 (#10), T12 (#28), T13 (#36), T15 (#20), T16 (#27), T17 (#26), T18 (#25), T19 (#32), T21 (#33), T22 (#35), T23 (#34).
 - Vérification end-of-sprint : ouvrir le tab Programme + tab Entraînement + tab Nutrition sur device → flow web miroir complet, modals OK, banners conditionnels OK, drag-drop + vidéo + timer libre opérationnels.
