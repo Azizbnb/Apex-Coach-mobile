@@ -17,6 +17,10 @@ export default function ModalLayout() {
         name="rest-timer"
         options={{ presentation: 'fullScreenModal' }}
       />
+      <Stack.Screen
+        name="exercise-video"
+        options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+      />
     </Stack>
   );
 }

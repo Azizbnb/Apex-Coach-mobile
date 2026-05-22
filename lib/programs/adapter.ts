@@ -32,6 +32,8 @@ export interface AIExercise {
   muscles_targeted?: string[];
   tempo?: string;
   alternative_exercises?: string[];
+  /** URL signée Supabase Storage pour la vidéo de démonstration */
+  video_url?: string;
 }
 
 export interface AIWarmup {

@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { View, TextInput, ScrollView, Pressable } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import * as WebBrowser from 'expo-web-browser';
-import { Play, Zap, Info, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { Zap, Info, ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { ExerciseVideoButton } from '@/components/workout/ExerciseVideoButton';
 import { colors } from '@/lib/constants';
 import type { AIExercise } from '@/lib/programs/adapter';
 
@@ -81,11 +80,6 @@ export function ExerciseView({
     onValidate({ reps, weight });
   };
 
-  const handleDemoPress = async () => {
-    if (!videoUrl) return;
-    await WebBrowser.openBrowserAsync(videoUrl);
-  };
-
   return (
     <View className="flex-1">
       <ScrollView
@@ -113,23 +107,13 @@ export function ExerciseView({
           {exercise.exercise_name}
         </Text>
 
-        {/* Bouton Démo (optionnel) */}
-        {videoUrl && (
-          <View className="items-center mb-6">
-            <Pressable
-              onPress={handleDemoPress}
-              accessibilityRole="link"
-              accessibilityLabel={`Voir la démo de ${exercise.exercise_name}`}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              className="flex-row items-center gap-2 bg-apex-lime-500/15 border border-apex-lime-500/30 rounded-full px-4 py-2 active:opacity-70"
-            >
-              <Play size={14} color={colors.lime[500]} fill={colors.lime[500]} />
-              <Text variant="caption" className="text-apex-lime-500 font-semibold">
-                Démo
-              </Text>
-            </Pressable>
-          </View>
-        )}
+        {/* Bouton Démo — ouvre le modal vidéo plein écran */}
+        <View className="items-center mb-6">
+          <ExerciseVideoButton
+            exerciseName={exercise.exercise_name}
+            videoUrl={videoUrl}
+          />
+        </View>
 
         {/* Gros chiffre reps */}
         <View className="items-center mb-3">

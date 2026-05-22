@@ -5,6 +5,9 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    // Stub du plugin Babel react-native-worklets (requis par reanimated v4, non installé en CI)
+    '^react-native-worklets/plugin$': '<rootDir>/__mocks__/react-native-worklets-plugin.js',
+    '^expo-video$': '<rootDir>/__mocks__/expo-video.js',
   },
   setupFiles: ['<rootDir>/jest.setup.ts'],
 };
