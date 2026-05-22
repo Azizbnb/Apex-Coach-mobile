@@ -1,11 +1,52 @@
 import { View, Text, Modal, ScrollView, Pressable } from 'react-native';
 import { X, ShoppingCart } from 'lucide-react-native';
 import { colors } from '@/lib/constants';
+import { ShoppingCategorySection } from './ShoppingCategorySection';
 import type { Meal } from '@/types';
 
-interface ShoppingItem {
-  name: string;
-  quantity: string;
+type Category = 'Légumes' | 'Protéines' | 'Féculents' | 'Épicerie' | 'Autres';
+
+export const CATEGORY_ORDER: Category[] = ['Légumes', 'Protéines', 'Féculents', 'Épicerie', 'Autres'];
+
+const CATEGORY_KEYWORDS: Record<Exclude<Category, 'Autres'>, string[]> = {
+  'Légumes': ['tomate', 'courgette', 'brocoli', 'epinard', 'carotte', 'concombre', 'salade', 'poivron', 'oignon', 'ail', 'champignon', 'aubergine', 'chou', 'laitue', 'celeri', 'poireau', 'radis', 'betterave', 'artichaut', 'avocat', 'fenouil', 'asperge'],
+  'Protéines': ['poulet', 'boeuf', 'porc', 'saumon', 'thon', 'oeuf', 'whey', 'fromage', 'yaourt', 'dinde', 'crevette', 'tofu', 'seitan', 'cottage', 'ricotta', 'maquereau', 'sardine', 'lait', 'veau', 'agneau', 'proteine'],
+  'Féculents': ['riz', 'pate', 'pain', 'avoine', 'flocon', 'quinoa', 'lentille', 'pois chiche', 'haricot blanc', 'millet', 'boulgour', 'farine', 'semoule', 'tortilla', 'patate', 'cereale', 'pomme de terre'],
+  'Épicerie': ['huile', 'sauce', 'moutarde', 'vinaigre', 'sel', 'poivre', 'amande', 'noix', 'beurre', 'miel', 'cacahuete', 'graine', 'tahini', 'cacao', 'chocolat'],
+};
+
+function normalize(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+export function classifyFood(name: string): Category {
+  const n = normalize(name);
+  for (const cat of CATEGORY_ORDER.filter((c): c is Exclude<Category, 'Autres'> => c !== 'Autres')) {
+    if (CATEGORY_KEYWORDS[cat].some((kw) => n.includes(kw))) return cat;
+  }
+  return 'Autres';
+}
+
+function buildCategorizedList(meals: Meal[]): Map<Category, { name: string; quantity: string }[]> {
+  const aggregate = new Map<string, { quantity: string; category: Category }>();
+  meals.forEach((meal) => {
+    meal.foods.forEach((food) => {
+      const prev = aggregate.get(food.name);
+      aggregate.set(food.name, {
+        quantity: prev ? `${prev.quantity} + ${food.quantity}` : food.quantity,
+        category: prev?.category ?? classifyFood(food.name),
+      });
+    });
+  });
+  const result = new Map<Category, { name: string; quantity: string }[]>(
+    CATEGORY_ORDER.map((c) => [c, []])
+  );
+  Array.from(aggregate.entries())
+    .sort(([a], [b]) => a.localeCompare(b, 'fr'))
+    .forEach(([name, { quantity, category }]) => {
+      result.get(category)!.push({ name, quantity });
+    });
+  return result;
 }
 
 interface ShoppingListProps {
@@ -14,21 +55,9 @@ interface ShoppingListProps {
   onClose: () => void;
 }
 
-function buildShoppingList(meals: Meal[]): ShoppingItem[] {
-  const map = new Map<string, string>();
-  meals.forEach((meal) => {
-    meal.foods.forEach((food) => {
-      const existing = map.get(food.name);
-      map.set(food.name, existing ? `${existing} + ${food.quantity}` : food.quantity);
-    });
-  });
-  return Array.from(map.entries())
-    .map(([name, quantity]) => ({ name, quantity }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-}
-
 export function ShoppingList({ meals, visible, onClose }: ShoppingListProps) {
-  const items = buildShoppingList(meals);
+  const categorized = buildCategorizedList(meals);
+  const uniqueCount = CATEGORY_ORDER.reduce((sum, c) => sum + (categorized.get(c)?.length ?? 0), 0);
 
   return (
     <Modal
@@ -38,7 +67,6 @@ export function ShoppingList({ meals, visible, onClose }: ShoppingListProps) {
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-apex-black-900">
-        {/* En-tête */}
         <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-apex-black-700">
           <View className="flex-row items-center gap-3">
             <ShoppingCart size={20} color={colors.lime[500]} />
@@ -55,25 +83,22 @@ export function ShoppingList({ meals, visible, onClose }: ShoppingListProps) {
 
         <ScrollView className="flex-1 px-6 pt-4" showsVerticalScrollIndicator={false}>
           <Text className="text-apex-black-400 text-sm mb-4">
-            {items.length} ingrédient{items.length !== 1 ? 's' : ''} pour la semaine
+            {uniqueCount} ingrédient{uniqueCount !== 1 ? 's' : ''} pour la semaine
           </Text>
 
-          {items.map((item, index) => (
-            <View
-              key={index}
-              className="flex-row justify-between items-center py-3 border-b border-apex-black-700"
-            >
-              <Text className="text-white text-base flex-1 mr-4">{item.name}</Text>
-              <Text className="text-apex-black-400 text-sm">{item.quantity}</Text>
-            </View>
+          {CATEGORY_ORDER.map((category) => (
+            <ShoppingCategorySection
+              key={category}
+              category={category}
+              items={categorized.get(category) ?? []}
+            />
           ))}
 
-          {items.length === 0 && (
+          {uniqueCount === 0 && (
             <Text className="text-apex-black-400 text-center mt-8">
               Aucun ingrédient trouvé dans le plan.
             </Text>
           )}
-
           <View className="h-8" />
         </ScrollView>
       </View>
