@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import { ShoppingList } from '@/components/nutrition/ShoppingList';
+import { ShoppingList, classifyFood, CATEGORY_ORDER } from '@/components/nutrition/ShoppingList';
 import type { Meal } from '@/types';
 
 const mockMeals: Meal[] = [
@@ -37,12 +37,12 @@ describe('ShoppingList', () => {
     expect(screen.getByText('80g + 50g')).toBeTruthy();
   });
 
-  it('affiche le compteur total des ingrédients', () => {
+  it('affiche le compteur total des ingrédients uniques', () => {
     render(<ShoppingList meals={mockMeals} visible={true} onClose={jest.fn()} />);
     expect(screen.getByText(/3 ingrédients/)).toBeTruthy();
   });
 
-  it('affiche les ingrédients par ordre alphabétique', () => {
+  it('place Légumes avant Féculents dans le rendu (ordre catégories)', () => {
     const meals: Meal[] = [{
       id: 'm1',
       name: 'Repas',
@@ -63,5 +63,57 @@ describe('ShoppingList', () => {
     render(<ShoppingList meals={mockMeals} visible={true} onClose={onClose} />);
     fireEvent.press(screen.getByLabelText('Fermer la liste de courses'));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('groupe Poulet en Protéines et Flocons en Féculents', () => {
+    render(<ShoppingList meals={mockMeals} visible={true} onClose={jest.fn()} />);
+    expect(screen.getByText('Protéines')).toBeTruthy();
+    expect(screen.getByText('Féculents')).toBeTruthy();
+    expect(screen.queryByText('Légumes')).toBeNull();
+  });
+
+  it('range les ingrédients non reconnus dans Autres', () => {
+    const meals: Meal[] = [{
+      id: 'm1',
+      name: 'Test',
+      time: '12:00',
+      foods: [
+        { name: 'Poudre magique XYZ', quantity: '10g', calories: 0, protein: 0, carbs: 0, fats: 0 },
+      ],
+    }];
+    render(<ShoppingList meals={meals} visible={true} onClose={jest.fn()} />);
+    expect(screen.getByText('Autres')).toBeTruthy();
+    expect(screen.getByText('Poudre magique XYZ')).toBeTruthy();
+  });
+
+  it('affiche "Aucun ingrédient" quand les repas sont vides', () => {
+    render(<ShoppingList meals={[]} visible={true} onClose={jest.fn()} />);
+    expect(screen.getByText(/Aucun ingrédient/)).toBeTruthy();
+  });
+});
+
+describe('classifyFood', () => {
+  it('classifie le poulet en Protéines', () => {
+    expect(classifyFood('Poulet')).toBe('Protéines');
+  });
+
+  it('classifie le riz en Féculents', () => {
+    expect(classifyFood('Riz blanc')).toBe('Féculents');
+  });
+
+  it('classifie la tomate en Légumes', () => {
+    expect(classifyFood('Tomate cerise')).toBe('Légumes');
+  });
+
+  it("classifie l'huile d'olive en Épicerie", () => {
+    expect(classifyFood("Huile d'olive")).toBe('Épicerie');
+  });
+
+  it('classe un aliment inconnu en Autres', () => {
+    expect(classifyFood('Ingrédient inconnu XYZ123')).toBe('Autres');
+  });
+
+  it('respecte le même ordre que CATEGORY_ORDER', () => {
+    expect(CATEGORY_ORDER).toEqual(['Légumes', 'Protéines', 'Féculents', 'Épicerie', 'Autres']);
   });
 });

@@ -10,6 +10,7 @@ import { MealPlanCard } from '@/components/nutrition/MealPlanCard';
 import { ShoppingList } from '@/components/nutrition/ShoppingList';
 import { MealDetail } from '@/components/nutrition/MealDetail';
 import { RecipeDetail } from '@/components/nutrition/RecipeDetail';
+import { SupplementRecs } from '@/components/affiliate/SupplementRecs';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNutritionStore } from '@/stores/nutrition';
 import { colors } from '@/lib/constants';
@@ -131,7 +132,12 @@ export default function NutritionScreen() {
             className="mx-4 mb-3"
           />
         )}
-        ListFooterComponent={<View className="h-6" />}
+        ListFooterComponent={
+          <View className="px-4 pt-4 pb-8">
+            <View className="h-px bg-apex-black-700 mb-5" />
+            <SupplementRecs sourcePage="nutrition_tab" />
+          </View>
+        }
       />
 
       <ShoppingList
