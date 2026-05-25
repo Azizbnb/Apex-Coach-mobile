@@ -172,6 +172,10 @@ export const nutritionApi = {
     if (error) throw new ApiError(500, error.message);
     return (data?.nutrition_plan as NutritionPlan) || null;
   },
+
+  async retryNutrition(): Promise<void> {
+    await apiFetch('/programs/retry-nutrition', { method: 'POST' });
+  },
 };
 
 // --- Feedback (Sprint 2: via API route for AI processing) ---

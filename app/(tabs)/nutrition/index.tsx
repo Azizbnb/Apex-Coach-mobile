@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl } from 'react-native';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { View, Text, FlatList, RefreshControl, Alert } from 'react-native';
 import { Lock, Apple } from 'lucide-react-native';
 import { SafeView } from '@/components/ui/SafeView';
 import { FeatureGate } from '@/components/subscription/FeatureGate';
-import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MacroSummary } from '@/components/nutrition/MacroSummary';
 import { MealPlanCard } from '@/components/nutrition/MealPlanCard';
@@ -11,6 +10,8 @@ import { ShoppingList } from '@/components/nutrition/ShoppingList';
 import { MealDetail } from '@/components/nutrition/MealDetail';
 import { RecipeDetail } from '@/components/nutrition/RecipeDetail';
 import { SupplementRecs } from '@/components/affiliate/SupplementRecs';
+import { NutritionGenerationProgress } from '@/components/nutrition/NutritionGenerationProgress';
+import { Button } from '@/components/ui/Button';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNutritionStore } from '@/stores/nutrition';
 import { colors } from '@/lib/constants';
@@ -18,6 +19,7 @@ import type { Food, Meal } from '@/types';
 
 const PAYWALL_URL =
   'https://www.apexcoach.app/pricing?utm_source=ios_app&utm_medium=paywall&utm_campaign=nutrition_gate';
+const POLL_INTERVAL_MS = 5000;
 
 function NutritionSkeleton() {
   return (
@@ -31,22 +33,50 @@ function NutritionSkeleton() {
 
 export default function NutritionScreen() {
   const { hasNutrition } = useSubscription();
-  const { nutritionPlan, loading, fetchPlan } = useNutritionStore();
+  const { nutritionPlan, loading, fetchPlan, retryGeneration } = useNutritionStore();
 
   const [refreshing, setRefreshing] = useState(false);
   const [shoppingVisible, setShoppingVisible] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [retrying, setRetrying] = useState(false);
+  const prevStatusRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (hasNutrition) fetchPlan();
   }, [hasNutrition, fetchPlan]);
+
+  // Polling toutes les 5s quand la génération est en cours
+  useEffect(() => {
+    if (nutritionPlan?.status !== 'generating') return;
+    const id = setInterval(() => fetchPlan(), POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [nutritionPlan?.status, fetchPlan]);
+
+  // Toast natif quand le plan passe de 'generating' à 'ready'
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    const curr = nutritionPlan?.status;
+    if (prev === 'generating' && curr === 'ready') {
+      Alert.alert('Plan nutrition prêt !', 'Ton plan nutrition a été généré avec succès. 🎉');
+    }
+    prevStatusRef.current = curr;
+  }, [nutritionPlan?.status]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchPlan();
     setRefreshing(false);
   }, [fetchPlan]);
+
+  const handleRetry = useCallback(async () => {
+    setRetrying(true);
+    try {
+      await retryGeneration();
+    } finally {
+      setRetrying(false);
+    }
+  }, [retryGeneration]);
 
   if (!hasNutrition) {
     return (
@@ -68,6 +98,19 @@ export default function NutritionScreen() {
         <View className="pt-6">
           <NutritionSkeleton />
         </View>
+      </SafeView>
+    );
+  }
+
+  const planStatus = nutritionPlan?.status;
+  if (planStatus === 'generating' || planStatus === 'failed') {
+    return (
+      <SafeView>
+        <NutritionGenerationProgress
+          status={planStatus}
+          onRetry={handleRetry}
+          retrying={retrying}
+        />
       </SafeView>
     );
   }
@@ -139,7 +182,6 @@ export default function NutritionScreen() {
           </View>
         }
       />
-
       <ShoppingList
         meals={meals}
         visible={shoppingVisible}

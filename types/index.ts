@@ -58,9 +58,12 @@ export interface Exercise {
   notes?: string
 }
 
+export type NutritionPlanStatus = 'generating' | 'failed' | 'ready'
+
 export interface NutritionPlan {
   id: string
   user_id: string
+  status?: NutritionPlanStatus
   calories: number
   protein: number
   carbs: number
