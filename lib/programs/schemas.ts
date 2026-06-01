@@ -72,6 +72,13 @@ export const ExerciseSchema = z.object({
     .max(3, 'Maximum 3 exercices alternatifs')
     .optional()
     .describe('Exercices alternatifs si équipement manquant'),
+
+  // URL vidéo démo dans Supabase Storage (chemin signé — optionnel)
+  video_url: z
+    .string()
+    .url('URL vidéo invalide')
+    .optional()
+    .describe('URL signée Supabase Storage pour la vidéo de démonstration'),
 })
 
 export type Exercise = z.infer<typeof ExerciseSchema>
