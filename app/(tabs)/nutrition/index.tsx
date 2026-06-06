@@ -13,10 +13,12 @@ import { RecipeDetail } from '@/components/nutrition/RecipeDetail';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNutritionStore } from '@/stores/nutrition';
 import { colors } from '@/lib/constants';
+import { buildWebUrl } from '@/lib/web-browser';
 import type { Food, Meal } from '@/types';
 
-const PAYWALL_URL =
-  'https://www.apexcoach.app/pricing?utm_source=ios_app&utm_medium=paywall&utm_campaign=nutrition_gate';
+// Modèle Netflix / conformité Reader App : on pointe vers la home apexcoach.app
+// (jamais une page prix ou checkout), UTM d'attribution injectés.
+const PAYWALL_URL = buildWebUrl('/', { medium: 'paywall', campaign: 'nutrition_gate' });
 
 function NutritionSkeleton() {
   return (

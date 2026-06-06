@@ -5,8 +5,10 @@
  * - Custom scheme: apexcoach://
  * - Universal links: https://apexcoach.app/...
  * - Password reset links → /(auth)/set-password
- * - Payment confirmation → /(payment)/checkout?status=success
  * - Referral/affiliate links
+ *
+ * Note : aucun flux de paiement in-app (modèle Netflix). La conversion se fait
+ * sur le web via lib/web-browser.ts, jamais via une route mobile.
  */
 
 import { DEEP_LINK_SCHEME, UNIVERSAL_LINK_HOST } from '@/lib/constants';
