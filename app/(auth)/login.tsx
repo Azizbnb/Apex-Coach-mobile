@@ -12,6 +12,7 @@ import { SafeView } from '@/components/ui/SafeView';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth';
+import { openWebUrl } from '@/lib/web-browser';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -115,6 +116,17 @@ export default function LoginScreen() {
           <Button onPress={handleLogin} loading={loading}>
             Se connecter
           </Button>
+
+          {/* Création de compte (web — modèle Netflix) */}
+          <Pressable
+            onPress={() => openWebUrl('/', { medium: 'app', campaign: 'login_signup' })}
+            className="mt-6 self-center"
+          >
+            <Text className="text-apex-black-400 text-sm">
+              Pas encore de compte ?{' '}
+              <Text className="text-apex-lime-500 font-medium">Créer mon compte</Text>
+            </Text>
+          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeView>

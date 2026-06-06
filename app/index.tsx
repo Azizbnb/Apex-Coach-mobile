@@ -14,7 +14,7 @@ export default function Index() {
     if (session) {
       router.replace('/(tabs)/programme');
     } else {
-      router.replace('/(auth)/login');
+      router.replace('/(onboarding)/welcome');
     }
   }, [session, initialized]);
 
