@@ -3,6 +3,8 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 
 import { SafeView } from '@/components/ui/SafeView';
 import { WeekCard } from '@/components/programme/WeekCard';
+import { TrialBanner } from '@/components/subscription/TrialBanner';
+import { PromoExpiryBanner } from '@/components/subscription/PromoExpiryBanner';
 import { useProgramStore } from '@/stores/program';
 import { useSubscriptionStore } from '@/stores/subscription';
 import {
@@ -75,9 +77,13 @@ export default function ProgrammeScreen() {
     <SafeView>
       <ScrollView
         className="flex-1 px-4"
-        contentContainerStyle={{ paddingBottom: 32 }}
+        contentContainerStyle={{ paddingBottom: 32, paddingTop: 16 }}
       >
-        <Text className="text-2xl font-bold text-white mt-4 mb-2">
+        {/* Banners conversion (s'auto-masquent hors trial/promo) */}
+        <TrialBanner />
+        <PromoExpiryBanner />
+
+        <Text className="text-2xl font-bold text-white mb-2">
           {program.title || 'Mon Programme'}
         </Text>
         <Text className="text-apex-black-400 mb-6">
