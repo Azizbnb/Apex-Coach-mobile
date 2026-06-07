@@ -5,7 +5,7 @@ import { SafeView } from '@/components/ui/SafeView';
 import { FeatureGate } from '@/components/subscription/FeatureGate';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { MacroSummary } from '@/components/nutrition/MacroSummary';
+import { MacroRings } from '@/components/nutrition/MacroRings';
 import { MealPlanCard } from '@/components/nutrition/MealPlanCard';
 import { ShoppingList } from '@/components/nutrition/ShoppingList';
 import { MealDetail } from '@/components/nutrition/MealDetail';
@@ -110,7 +110,7 @@ export default function NutritionScreen() {
             <Text className="text-apex-black-400 text-sm mb-4">
               Plan du jour · {meals.length} repas
             </Text>
-            <MacroSummary
+            <MacroRings
               calories={nutritionPlan.calories}
               protein={nutritionPlan.protein}
               carbs={nutritionPlan.carbs}
