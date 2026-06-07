@@ -51,10 +51,39 @@ function createAnimatedComponent(Component) {
   return Wrapped;
 }
 
+// Composants animés prêts à l'emploi (Animated.View / Animated.Text / ...).
+// On strippe les props d'animation de layout (entering/exiting/layout) qui ne
+// concernent que le runtime natif, pour rendre un composant RN simple en test.
+const RN = require('react-native');
+
+function makeAnimatedComponent(Component) {
+  const Wrapped = function (props) {
+    const { entering, exiting, layout, animatedProps, ...rest } = props;
+    return React.createElement(Component, Object.assign({}, rest, animatedProps));
+  };
+  Wrapped.displayName = `Animated(${Component.displayName || Component.name || 'Component'})`;
+  return Wrapped;
+}
+
+const AnimatedView = makeAnimatedComponent(RN.View);
+const AnimatedText = makeAnimatedComponent(RN.Text);
+const AnimatedScrollView = makeAnimatedComponent(RN.ScrollView);
+const AnimatedImage = makeAnimatedComponent(RN.Image);
+
 module.exports = {
   __esModule: true,
-  default: { createAnimatedComponent },
+  default: {
+    createAnimatedComponent,
+    View: AnimatedView,
+    Text: AnimatedText,
+    ScrollView: AnimatedScrollView,
+    Image: AnimatedImage,
+  },
   createAnimatedComponent,
+  View: AnimatedView,
+  Text: AnimatedText,
+  ScrollView: AnimatedScrollView,
+  Image: AnimatedImage,
   useSharedValue: (v) => ({ value: v }),
   useAnimatedStyle: () => ({}),
   useAnimatedProps: () => ({}),

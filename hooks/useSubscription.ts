@@ -13,6 +13,8 @@ export function useSubscription() {
   const isActive = useSubscriptionStore((s) => s.isActive);
   const isTrial = useSubscriptionStore((s) => s.isTrial);
   const isPromo = useSubscriptionStore((s) => s.isPromo);
+  const trialDaysLeft = useSubscriptionStore((s) => s.trialDaysLeft());
+  const promoDaysLeft = useSubscriptionStore((s) => s.promoDaysLeft());
 
   return {
     subscription,
@@ -24,5 +26,7 @@ export function useSubscription() {
     isActive: isActive(),
     isTrial: isTrial(),
     isPromo: isPromo(),
+    trialDaysLeft,
+    promoDaysLeft,
   };
 }

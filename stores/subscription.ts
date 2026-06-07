@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { subscriptionApi } from '@/lib/api';
 import { hasDashboardAccess, hasNutritionAccess } from '@/lib/config/pricing';
+import { daysUntil } from '@/lib/subscription/countdown';
 import type { Subscription } from '@/types';
 import type { PlanId } from '@/lib/config/pricing';
 
@@ -24,6 +25,8 @@ interface SubscriptionState {
   isActive: () => boolean;
   isTrial: () => boolean;
   isPromo: () => boolean;
+  trialDaysLeft: () => number | null;
+  promoDaysLeft: () => number | null;
 }
 
 export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
@@ -74,5 +77,17 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
   isPromo: () => {
     return !!get().subscription?.is_promo_subscription;
+  },
+
+  trialDaysLeft: () => {
+    const sub = get().subscription;
+    if (!sub?.is_trial) return null;
+    return daysUntil(sub.trial_end_date);
+  },
+
+  promoDaysLeft: () => {
+    const sub = get().subscription;
+    if (!sub?.is_promo_subscription) return null;
+    return daysUntil(sub.promo_end_date);
   },
 }));
