@@ -1,11 +1,21 @@
 import { View, Text, Modal, ScrollView, Pressable } from 'react-native';
 import { X, ShoppingCart } from 'lucide-react-native';
 import { colors } from '@/lib/constants';
+import {
+  categorizeFood,
+  FOOD_CATEGORY_ORDER,
+  type FoodCategory,
+} from '@/lib/nutrition/food-categories';
 import type { Meal } from '@/types';
 
 interface ShoppingItem {
   name: string;
   quantity: string;
+}
+
+interface ShoppingSection {
+  category: FoodCategory;
+  items: ShoppingItem[];
 }
 
 interface ShoppingListProps {
@@ -14,6 +24,7 @@ interface ShoppingListProps {
   onClose: () => void;
 }
 
+/** Agrège les aliments par nom (quantités concaténées). */
 function buildShoppingList(meals: Meal[]): ShoppingItem[] {
   const map = new Map<string, string>();
   meals.forEach((meal) => {
@@ -22,13 +33,29 @@ function buildShoppingList(meals: Meal[]): ShoppingItem[] {
       map.set(food.name, existing ? `${existing} + ${food.quantity}` : food.quantity);
     });
   });
-  return Array.from(map.entries())
-    .map(([name, quantity]) => ({ name, quantity }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  return Array.from(map.entries()).map(([name, quantity]) => ({ name, quantity }));
+}
+
+/** Groupe les ingrédients par rayon, triés alpha, sections vides exclues. */
+export function groupByCategory(items: ShoppingItem[]): ShoppingSection[] {
+  const byCategory = new Map<FoodCategory, ShoppingItem[]>();
+  for (const item of items) {
+    const category = categorizeFood(item.name);
+    const list = byCategory.get(category) ?? [];
+    list.push(item);
+    byCategory.set(category, list);
+  }
+  return FOOD_CATEGORY_ORDER.map((category) => ({
+    category,
+    items: (byCategory.get(category) ?? []).sort((a, b) =>
+      a.name.localeCompare(b.name, 'fr')
+    ),
+  })).filter((section) => section.items.length > 0);
 }
 
 export function ShoppingList({ meals, visible, onClose }: ShoppingListProps) {
   const items = buildShoppingList(meals);
+  const sections = groupByCategory(items);
 
   return (
     <Modal
@@ -58,13 +85,20 @@ export function ShoppingList({ meals, visible, onClose }: ShoppingListProps) {
             {items.length} ingrédient{items.length !== 1 ? 's' : ''} pour la semaine
           </Text>
 
-          {items.map((item, index) => (
-            <View
-              key={index}
-              className="flex-row justify-between items-center py-3 border-b border-apex-black-700"
-            >
-              <Text className="text-white text-base flex-1 mr-4">{item.name}</Text>
-              <Text className="text-apex-black-400 text-sm">{item.quantity}</Text>
+          {sections.map((section) => (
+            <View key={section.category} className="mb-5">
+              <Text className="text-apex-lime-500 font-semibold text-xs uppercase tracking-wide mb-2">
+                {section.category}
+              </Text>
+              {section.items.map((item, index) => (
+                <View
+                  key={`${section.category}-${index}`}
+                  className="flex-row justify-between items-center py-3 border-b border-apex-black-700"
+                >
+                  <Text className="text-white text-base flex-1 mr-4">{item.name}</Text>
+                  <Text className="text-apex-black-400 text-sm">{item.quantity}</Text>
+                </View>
+              ))}
             </View>
           ))}
 
