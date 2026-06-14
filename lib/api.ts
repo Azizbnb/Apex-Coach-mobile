@@ -58,7 +58,9 @@ export async function apiFetch<T>(
     throw new ApiError(response.status, error.error || 'Request failed', error);
   }
 
-  return response.json();
+  // Tolère un corps vide (ex: certaines routes POST renvoient 200/204 sans JSON).
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 // ============================================
