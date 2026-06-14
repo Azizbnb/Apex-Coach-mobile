@@ -214,3 +214,21 @@ export const reviewsApi = {
     return apiFetch(`/reviews/public?page=${page}`);
   },
 };
+
+// --- Account (RGPD + suppression) ---
+// Routes web existantes — aucune logique backend ajoutée côté mobile.
+
+export const accountApi = {
+  /** Déclenche l'export RGPD : le serveur envoie une archive par email. */
+  async exportGdprData(): Promise<void> {
+    await apiFetch('/gdpr/export', { method: 'POST' });
+  },
+
+  /** Supprime définitivement le compte (purge async côté serveur). */
+  async deleteAccount(): Promise<void> {
+    await apiFetch('/account/delete', {
+      method: 'POST',
+      body: JSON.stringify({ confirm: true }),
+    });
+  },
+};

@@ -4,6 +4,8 @@ import { SafeView } from '@/components/ui/SafeView';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Badge } from '@/components/ui/Badge';
+import { GdprExportButton } from '@/components/settings/GdprExportButton';
+import { DeleteAccountButton } from '@/components/settings/DeleteAccountButton';
 import { LogOut, Settings, ChevronRight } from 'lucide-react-native';
 import { colors } from '@/lib/constants';
 
@@ -44,13 +46,22 @@ export default function ProfileScreen() {
         {/* Sign out */}
         <Pressable
           onPress={async () => { await signOut(); router.replace('/(auth)/login'); }}
-          className="bg-apex-black-800 rounded-xl p-4 mb-4 border border-apex-black-700 flex-row items-center"
+          className="bg-apex-black-800 rounded-xl p-4 mb-6 border border-apex-black-700 flex-row items-center"
         >
           <LogOut size={20} color={colors.error} />
           <Text className="text-apex-error ml-3 font-medium">
             Se déconnecter
           </Text>
         </Pressable>
+
+        {/* Données & confidentialité (RGPD + suppression — obligatoire stores) */}
+        <Text className="text-apex-black-400 text-sm font-medium mb-3">
+          Données & confidentialité
+        </Text>
+        <View className="gap-3 mb-8">
+          <GdprExportButton />
+          <DeleteAccountButton />
+        </View>
       </ScrollView>
     </SafeView>
   );
