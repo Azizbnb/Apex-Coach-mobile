@@ -221,16 +221,22 @@ export const reviewsApi = {
 // Routes web existantes — aucune logique backend ajoutée côté mobile.
 
 export const accountApi = {
-  /** Déclenche l'export RGPD : le serveur envoie une archive par email. */
-  async exportGdprData(): Promise<void> {
-    await apiFetch('/gdpr/export', { method: 'POST' });
+  /**
+   * Export RGPD (Art. 15) — GET /api/gdpr/export.
+   * Le serveur renvoie l'intégralité des données utilisateur en JSON (self-service).
+   */
+  async exportGdprData(): Promise<unknown> {
+    return apiFetch('/gdpr/export');
   },
 
-  /** Supprime définitivement le compte (purge async côté serveur). */
-  async deleteAccount(): Promise<void> {
-    await apiFetch('/account/delete', {
+  /**
+   * Suppression de compte (Art. 17) — POST /api/user/delete-account.
+   * Re-authentification serveur par mot de passe ; purge/anonymisation async.
+   */
+  async deleteAccount(password: string): Promise<void> {
+    await apiFetch('/user/delete-account', {
       method: 'POST',
-      body: JSON.stringify({ confirm: true }),
+      body: JSON.stringify({ password }),
     });
   },
 };

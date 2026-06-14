@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { Share } from 'react-native';
 import { GdprExportButton } from '@/components/settings/GdprExportButton';
 import { accountApi } from '@/lib/api';
 
@@ -19,17 +19,18 @@ const mockExport = jest.mocked(accountApi.exportGdprData);
 describe('GdprExportButton', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it("déclenche l'export et confirme par une alerte", async () => {
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-    mockExport.mockResolvedValueOnce(undefined);
+  it('récupère les données (GET) et ouvre le partage natif', async () => {
+    const shareSpy = jest
+      .spyOn(Share, 'share')
+      .mockResolvedValue({ action: 'sharedAction' });
+    mockExport.mockResolvedValueOnce({ profile: { id: 'u1' } });
 
     render(<GdprExportButton />);
-    fireEvent.press(screen.getByText('Exporter mes données'));
+    fireEvent.press(screen.getByText('Télécharger mes données'));
 
     await waitFor(() => expect(mockExport).toHaveBeenCalledTimes(1));
-    expect(alertSpy).toHaveBeenCalledWith(
-      'Demande envoyée',
-      expect.stringContaining('email')
+    expect(shareSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('u1') })
     );
   });
 });

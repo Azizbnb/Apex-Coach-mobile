@@ -26,28 +26,28 @@ const mockDelete = jest.mocked(accountApi.deleteAccount);
 describe('DeleteAccountButton', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('supprime le compte après confirmation en 2 étapes', async () => {
+  it('supprime le compte après SUPPRIMER + mot de passe', async () => {
     mockDelete.mockResolvedValueOnce(undefined);
     render(<DeleteAccountButton />);
 
     fireEvent.press(screen.getByText('Supprimer mon compte'));
-    expect(screen.getByText('Supprimer ton compte ?')).toBeTruthy();
-
-    fireEvent.press(screen.getByText('Continuer'));
     fireEvent.changeText(screen.getByPlaceholderText('SUPPRIMER'), 'SUPPRIMER');
+    fireEvent.press(screen.getByText('Continuer'));
+    fireEvent.changeText(screen.getByPlaceholderText('Ton mot de passe'), 'hunter2');
     fireEvent.press(screen.getByText('Supprimer définitivement'));
 
-    await waitFor(() => expect(mockDelete).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('hunter2'));
     expect(mockSignOut).toHaveBeenCalled();
     expect(router.replace).toHaveBeenCalledWith('/(onboarding)/welcome');
   });
 
-  it('ne supprime pas si le mot de confirmation est incorrect', () => {
+  it('bloque le passage à l\'étape mot de passe si la confirmation est incorrecte', () => {
     render(<DeleteAccountButton />);
     fireEvent.press(screen.getByText('Supprimer mon compte'));
-    fireEvent.press(screen.getByText('Continuer'));
     fireEvent.changeText(screen.getByPlaceholderText('SUPPRIMER'), 'nope');
-    fireEvent.press(screen.getByText('Supprimer définitivement'));
+    fireEvent.press(screen.getByText('Continuer'));
+
+    expect(screen.queryByPlaceholderText('Ton mot de passe')).toBeNull();
     expect(mockDelete).not.toHaveBeenCalled();
   });
 });
