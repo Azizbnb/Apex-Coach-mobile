@@ -174,7 +174,40 @@ export const nutritionApi = {
     if (error) throw new ApiError(500, error.message);
     return (data?.nutrition_plan as NutritionPlan) || null;
   },
+
+  /** Statut de génération du plan nutrition (dérivé du dernier programme). */
+  async getGenerationStatus(): Promise<NutritionGenerationStatus | null> {
+    const userId = await getCurrentUserId();
+    const { data, error } = await supabase
+      .from('programs')
+      .select('id, status, nutrition_generation_failed')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new ApiError(500, error.message);
+    if (!data) return null;
+    return {
+      programId: data.id,
+      status: data.status,
+      nutritionFailed: !!data.nutrition_generation_failed,
+    };
+  },
+
+  /** Relance la génération du plan nutrition (Pro, programme complété). */
+  async retryNutrition(programId: string): Promise<void> {
+    await apiFetch('/programs/retry-nutrition', {
+      method: 'POST',
+      body: JSON.stringify({ programId }),
+    });
+  },
 };
+
+export interface NutritionGenerationStatus {
+  programId: string;
+  status: string;
+  nutritionFailed: boolean;
+}
 
 // --- Feedback (Sprint 2: via API route for AI processing) ---
 

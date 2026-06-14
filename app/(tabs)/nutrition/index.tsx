@@ -6,6 +6,7 @@ import { FeatureGate } from '@/components/subscription/FeatureGate';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MacroRings } from '@/components/nutrition/MacroRings';
+import { NutritionGenerationProgress } from '@/components/nutrition/NutritionGenerationProgress';
 import { MealPlanCard } from '@/components/nutrition/MealPlanCard';
 import { ShoppingList } from '@/components/nutrition/ShoppingList';
 import { MealDetail } from '@/components/nutrition/MealDetail';
@@ -14,6 +15,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useNutritionStore } from '@/stores/nutrition';
 import { colors } from '@/lib/constants';
 import { buildWebUrl } from '@/lib/web-browser';
+import { resolveNutritionState } from '@/lib/nutrition/generation-state';
 import type { Food, Meal } from '@/types';
 
 // Modèle Netflix / conformité Reader App : on pointe vers la home apexcoach.app
@@ -32,22 +34,45 @@ function NutritionSkeleton() {
 
 export default function NutritionScreen() {
   const { hasNutrition } = useSubscription();
-  const { nutritionPlan, loading, fetchPlan } = useNutritionStore();
+  const {
+    nutritionPlan,
+    loading,
+    fetchPlan,
+    generation,
+    retrying,
+    fetchGeneration,
+    retryNutrition,
+  } = useNutritionStore();
 
   const [refreshing, setRefreshing] = useState(false);
   const [shoppingVisible, setShoppingVisible] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
 
+  const viewState = resolveNutritionState(!!nutritionPlan, generation);
+
   useEffect(() => {
-    if (hasNutrition) fetchPlan();
-  }, [hasNutrition, fetchPlan]);
+    if (hasNutrition) {
+      fetchPlan();
+      fetchGeneration();
+    }
+  }, [hasNutrition, fetchPlan, fetchGeneration]);
+
+  // Polling léger tant que la génération est en cours (auto-rafraîchit à la fin).
+  useEffect(() => {
+    if (viewState !== 'generating') return;
+    const id = setInterval(() => {
+      fetchPlan();
+      fetchGeneration();
+    }, 15000);
+    return () => clearInterval(id);
+  }, [viewState, fetchPlan, fetchGeneration]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchPlan();
+    await Promise.all([fetchPlan(), fetchGeneration()]);
     setRefreshing(false);
-  }, [fetchPlan]);
+  }, [fetchPlan, fetchGeneration]);
 
   if (!hasNutrition) {
     return (
@@ -63,7 +88,7 @@ export default function NutritionScreen() {
     );
   }
 
-  if (loading && !nutritionPlan) {
+  if (loading && viewState === 'none') {
     return (
       <SafeView>
         <View className="pt-6">
@@ -73,7 +98,19 @@ export default function NutritionScreen() {
     );
   }
 
-  if (!nutritionPlan) {
+  if (viewState === 'generating' || viewState === 'failed') {
+    return (
+      <SafeView>
+        <NutritionGenerationProgress
+          failed={viewState === 'failed'}
+          retrying={retrying}
+          onRetry={retryNutrition}
+        />
+      </SafeView>
+    );
+  }
+
+  if (viewState === 'none') {
     return (
       <SafeView>
         <View className="flex-1 items-center justify-center px-6">
@@ -88,6 +125,9 @@ export default function NutritionScreen() {
       </SafeView>
     );
   }
+
+  // viewState === 'ready' garantit un plan ; garde défensif pour TypeScript.
+  if (!nutritionPlan) return null;
 
   const meals: Meal[] = nutritionPlan.meals ?? [];
 
