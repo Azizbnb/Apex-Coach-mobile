@@ -41,8 +41,9 @@
 | **Nutrition** | `MacroRings` (SVG), `ShoppingList` par rayon (`lib/nutrition/food-categories.ts`), `NutritionGenerationProgress` + retry + polling | S2-T23/T24/T25 |
 | **RGPD (bloquant stores)** | `accountApi` + `GdprExportButton` (Share natif) + `DeleteAccountButton` (SUPPRIMER + mot de passe), intégrés au Profil | S4-T11/T12 |
 | **Sécurité** | Audit passé ; `.gitignore` (`.env`, `google-services.json`, `*-service-account.json`, `.idea/`) ; `apiFetch` tolère corps vide | — |
+| **Observabilité** | `@sentry/react-native` 7.11.0 (via `expo install`, config plugin auto-ajouté) ; init env-based `EXPO_PUBLIC_SENTRY_DSN` (vide = no-op) dans `app/_layout.tsx` ; scrubber RGPD `lib/monitoring/scrub.ts` (email/identité/contact/santé Step 5 masqués, `user.id` conservé) ; `AppErrorBoundary` global ; tags `platform`/`app_version`/`user_plan` | S4-T14 |
 
-**État technique : 154 tests verts (26 suites), `tsc` + `eslint` clean.**
+**État technique : 161 tests verts (27 suites), `tsc` + `eslint` clean.**
 
 Fichier mock test important : `__mocks__/react-native-reanimated.js` expose désormais `Animated.View/Text/ScrollView/Image` (nécessaire pour tester les composants animés).
 
@@ -51,7 +52,7 @@ Fichier mock test important : `__mocks__/react-native-reanimated.js` expose dés
 ## 5. Reste à faire (par priorité)
 
 ### A. Avant le premier build/TestFlight
-1. **Sentry** (`@sentry/react-native`) — **prochain ticket**. Approche décidée : intégration **env-based via `EXPO_PUBLIC_SENTRY_DSN`** (vide = no-op, app fonctionne). Câbler : init dans `app/_layout.tsx`, `beforeSend` qui scrub email/prénom/données santé (garder `user.id` UUID OK), `ErrorBoundary`, tags `platform`/`app_version`/`user_plan`. Aziz **n'a pas encore de projet Sentry** → à créer + remplir le DSN plus tard. (S4-T14)
+1. ✅ **Sentry (S4-T14) — FAIT.** Intégration env-based `EXPO_PUBLIC_SENTRY_DSN` (vide = no-op). Reste **côté Aziz** : créer le projet Sentry → remplir le DSN dans `.env`. Pour les **source maps** sur EAS, fournir `SENTRY_AUTH_TOKEN` + org/project au config plugin `@sentry/react-native` dans `app.json` (aujourd'hui en bare string, upload désactivé tant que le token manque — ne casse pas le build).
 2. **Workout fixes Sprint 2** : `FreeTimer` (S2-T21), drag-drop exos en prep (S2-T19), `ExerciseVideoModal` (S2-T20 — nécessite ajouter `expo-video`, **valider compat SDK 55** ou fallback WebView).
 
 ### B. Sprint 3 restant

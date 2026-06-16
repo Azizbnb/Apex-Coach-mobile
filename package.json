@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@sentry/react-native": "~7.11.0",
     "@supabase/supabase-js": "^2.99.2",
     "date-fns": "^4.1.0",
     "expo": "~55.0.6",

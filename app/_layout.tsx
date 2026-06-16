@@ -4,15 +4,30 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAuthStore } from '@/stores/auth';
+import { useSubscriptionStore } from '@/stores/subscription';
 import { BACKGROUND_COLOR } from '@/lib/constants';
+import { initSentry, setSentryUser, withSentry } from '@/lib/monitoring/sentry';
+import { AppErrorBoundary } from '@/components/monitoring/AppErrorBoundary';
+
+// Initialise Sentry avant le render (no-op si EXPO_PUBLIC_SENTRY_DSN absent)
+initSentry();
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const initialize = useAuthStore((s) => s.initialize);
   const cleanup = useAuthStore((s) => s.cleanup);
   const initialized = useAuthStore((s) => s.initialized);
+  const userId = useAuthStore((s) => s.user?.id ?? null);
+
+  // Plan dérivé pour le tag Sentry : trial > type d'abonnement > null
+  const userPlan = useSubscriptionStore((s) => {
+    const sub = s.subscription;
+    if (!sub) return null;
+    if (sub.is_trial) return 'trial';
+    return sub.subscription_type ?? null;
+  });
 
   useEffect(() => {
     initialize().finally(() => {
@@ -24,12 +39,17 @@ export default function RootLayout() {
     };
   }, [initialize, cleanup]);
 
+  // Met à jour le contexte Sentry (id UUID seul + plan) quand l'auth change
+  useEffect(() => {
+    setSentryUser({ userId, plan: userPlan });
+  }, [userId, userPlan]);
+
   if (!initialized) {
     return null;
   }
 
   return (
-    <>
+    <AppErrorBoundary>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -50,6 +70,8 @@ export default function RootLayout() {
           }}
         />
       </Stack>
-    </>
+    </AppErrorBoundary>
   );
 }
+
+export default withSentry(RootLayout);
