@@ -1,6 +1,6 @@
 # Handoff de session — Apex Coach Mobile
 
-> **Dernière mise à jour :** 14 juin 2026
+> **Dernière mise à jour :** 17 juin 2026
 > **But :** reprendre le travail sans perte de contexte dans une nouvelle session.
 > **Branche de travail :** `sprint-final-mobile` (poussée sur `origin`, tracking actif).
 > **Deadline :** **30 juin 2026** — build production soumis aux 2 stores.
@@ -43,7 +43,7 @@
 | **Sécurité** | Audit passé ; `.gitignore` (`.env`, `google-services.json`, `*-service-account.json`, `.idea/`) ; `apiFetch` tolère corps vide | — |
 | **Observabilité** | `@sentry/react-native` 7.11.0 (via `expo install`, config plugin auto-ajouté) ; init env-based `EXPO_PUBLIC_SENTRY_DSN` (vide = no-op) dans `app/_layout.tsx` ; scrubber RGPD `lib/monitoring/scrub.ts` (email/identité/contact/santé Step 5 masqués, `user.id` conservé) ; `AppErrorBoundary` global ; tags `platform`/`app_version`/`user_plan` | S4-T14 |
 
-**État technique : 161 tests verts (27 suites), `tsc` + `eslint` clean.**
+**État technique : 177 tests verts (29 suites), `tsc` + `eslint` clean.**
 
 Fichier mock test important : `__mocks__/react-native-reanimated.js` expose désormais `Animated.View/Text/ScrollView/Image` (nécessaire pour tester les composants animés).
 
@@ -53,7 +53,7 @@ Fichier mock test important : `__mocks__/react-native-reanimated.js` expose dés
 
 ### A. Avant le premier build/TestFlight
 1. ✅ **Sentry (S4-T14) — FAIT.** Intégration env-based `EXPO_PUBLIC_SENTRY_DSN` (vide = no-op). Reste **côté Aziz** : créer le projet Sentry → remplir le DSN dans `.env`. Pour les **source maps** sur EAS, fournir `SENTRY_AUTH_TOKEN` + org/project au config plugin `@sentry/react-native` dans `app.json` (aujourd'hui en bare string, upload désactivé tant que le token manque — ne casse pas le build).
-2. **Workout fixes Sprint 2** : `FreeTimer` (S2-T21), drag-drop exos en prep (S2-T19), `ExerciseVideoModal` (S2-T20 — nécessite ajouter `expo-video`, **valider compat SDK 55** ou fallback WebView).
+2. **Workout fixes Sprint 2** : ✅ **`FreeTimer` (S2-T21) — FAIT.** Minuteur libre count-up (Démarrer/Pause/Reprendre/Réinitialiser, affichage MM:SS → HH:MM:SS, cible optionnelle 30s/1/2/5 min + vibration `expo-haptics` à l'objectif). Composant `components/workout/FreeTimer.tsx` + helper pur `lib/workout/format-duration.ts` + modal plein écran `app/(modals)/free-timer.tsx` (enregistré dans `(modals)/_layout.tsx`), ouvert via `onTimerPress` de la `WorkoutTopBar`. 16 tests ajoutés. Reste : drag-drop exos en prep (S2-T19), `ExerciseVideoModal` (S2-T20 — nécessite ajouter `expo-video`, **valider compat SDK 55** ou fallback WebView).
 
 ### B. Sprint 3 restant
 3. Deep links auth : `set-password` / reset-password (écrans encore stubs), config deep links (`lib/deep-linking.ts` est un squelette), attribution (Apple Search Ads + Play Referrer).

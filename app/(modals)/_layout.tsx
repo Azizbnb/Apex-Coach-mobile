@@ -18,6 +18,10 @@ export default function ModalLayout() {
         name="rest-timer"
         options={{ presentation: 'fullScreenModal' }}
       />
+      <Stack.Screen
+        name="free-timer"
+        options={{ presentation: 'fullScreenModal' }}
+      />
     </Stack>
   );
 }

@@ -64,6 +64,10 @@ export default function WorkoutScreen() {
     router.push('/(modals)/session-complete');
   }, []);
 
+  const handleOpenFreeTimer = useCallback(() => {
+    router.push('/(modals)/free-timer');
+  }, []);
+
   // ───── Empty state : aucune séance active ───────────────────────────
   if (phase === 'idle' || !session || !currentWorkout) {
     return (
@@ -113,6 +117,7 @@ export default function WorkoutScreen() {
         totalExercises={totalExercises}
         completedCount={completedCount}
         onBack={handleBack}
+        onTimerPress={handleOpenFreeTimer}
       />
 
       {/* ───── Phase warmup ───────────────────────────────────────── */}
