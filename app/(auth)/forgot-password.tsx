@@ -20,6 +20,8 @@ export default function ForgotPasswordScreen() {
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
   const { resetPassword } = useAuthStore();
 
   const handleSubmit = async () => {
@@ -40,6 +42,20 @@ export default function ForgotPasswordScreen() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    setResent(false);
+    try {
+      await resetPassword(email.trim());
+      setResent(true);
+    } catch {
+      // L'API renvoie toujours 200 (anti-énumération) ; on reste silencieux
+      // sur un échec réseau pour ne pas inquiéter inutilement l'utilisateur.
+    } finally {
+      setResending(false);
     }
   };
 
@@ -70,17 +86,40 @@ export default function ForgotPasswordScreen() {
               <Text className="text-2xl font-bold text-white mt-6 mb-2">
                 Email envoyé !
               </Text>
-              <Text className="text-apex-black-400 text-center mb-8">
+              <Text className="text-apex-black-400 text-center mb-4">
                 Un email de réinitialisation a été envoyé à{' '}
                 <Text className="text-white font-medium">{email}</Text>.
-                Vérifie ta boîte de réception.
               </Text>
+              <Text className="text-apex-black-400 text-center mb-2">
+                Ouvre le lien dans l'email : il t'amène sur une page sécurisée
+                où tu choisis un nouveau mot de passe. Reviens ensuite ici pour
+                te connecter.
+              </Text>
+              <Text className="text-apex-black-400/70 text-center text-sm mb-8">
+                Pense à vérifier tes spams si tu ne le vois pas.
+              </Text>
+
               <Button
                 variant="secondary"
                 onPress={() => router.replace('/(auth)/login')}
               >
                 Retour à la connexion
               </Button>
+
+              <Pressable
+                onPress={handleResend}
+                disabled={resending}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                className="mt-5"
+              >
+                <Text className="text-apex-lime-500 text-center font-medium">
+                  {resending
+                    ? 'Envoi en cours…'
+                    : resent
+                      ? 'Email renvoyé ✓'
+                      : "Tu n'as rien reçu ? Renvoyer l'email"}
+                </Text>
+              </Pressable>
             </View>
           ) : (
             /* Form state */

@@ -67,7 +67,9 @@ Fichier mock test important : `__mocks__/react-native-reanimated.js` expose dés
    - **→ Sprint 2 workout entièrement clôturé.**
 
 ### B. Sprint 3 restant
-3. Deep links auth : `set-password` / reset-password (écrans encore stubs), config deep links (`lib/deep-linking.ts` est un squelette), attribution (Apple Search Ads + Play Referrer).
+3. Deep links auth :
+   - ✅ **Reset password (FAIT — web-handoff).** Décision verrouillée : pas de reset in-app. L'email branded (`POST /api/auth/send-password-reset`) génère un lien **web** `apexcoach.app/auth/callback?token_hash=…&type=recovery` (modifiable uniquement côté backend = interdit). L'écran `forgot-password` envoie l'email + message clair (ouvre le lien → reset sur le web → reviens te connecter) + renvoi d'email. Stub `set-password` **supprimé** (code mort), commentaire `lib/deep-linking.ts` corrigé.
+   - Reste : config deep links restante (`lib/deep-linking.ts` squelette pour referral/affiliate + universal links `applinks:apexcoach.app` côté app + AASA web Sprint 5), attribution (Apple Search Ads + Play Referrer).
 
 ### C. Sprint 4 restant
 4. Profil complet (S4-T06), modals settings (objectif, jeûne, mot de passe, notifications, avis), bilan modal + tab Bilan + analytics, push notifications + store settings.
