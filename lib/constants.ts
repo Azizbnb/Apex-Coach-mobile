@@ -48,7 +48,11 @@ export const colors = {
 // API
 // ============================================
 
-export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://apexcoach.app';
+// Host canonique = www. L'apex `apexcoach.app` répond en 307 vers www, ce qui
+// fait crasher la couche réseau native iOS sur les POST (le body est rejoué
+// pendant la redirection). Toujours partir de www → zéro redirection.
+export const API_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'https://www.apexcoach.app';
 
 // ============================================
 // DEEP LINKING

@@ -9,9 +9,10 @@ describe('lib/web-browser', () => {
   });
 
   describe('buildWebUrl', () => {
-    it('construit une URL absolue sur apexcoach.app avec UTM par défaut', () => {
+    it('construit une URL absolue sur www.apexcoach.app avec UTM par défaut', () => {
       const url = new URL(buildWebUrl('/'));
-      expect(url.origin).toBe('https://apexcoach.app');
+      // Host canonique www (l'apex redirige en 307 → crash réseau natif iOS sur POST)
+      expect(url.origin).toBe('https://www.apexcoach.app');
       expect(url.searchParams.get('utm_source')).toBe('ios_app');
       expect(url.searchParams.get('utm_medium')).toBe('app');
     });

@@ -6,6 +6,7 @@
  */
 
 import { supabase } from '@/lib/supabase/client';
+import { API_URL } from '@/lib/constants';
 import type {
   UserProfile,
   Subscription,
@@ -33,7 +34,10 @@ export class ApiError extends Error {
 // SPRINT 2 — API FETCH (préparé pour Bearer token)
 // ============================================
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL || '';
+// Host canonique (www). Viser l'apex `apexcoach.app` déclenche un 307 vers
+// www qui rejoue le body POST → crash natif réseau sur iOS (Expo Go / New
+// Architecture). On part donc toujours du host final, sans redirection.
+const API_BASE = API_URL;
 
 export async function apiFetch<T>(
   path: string,

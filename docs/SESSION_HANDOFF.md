@@ -28,6 +28,15 @@ Le projet a été **downgradé de SDK 55 → SDK 54** car Aziz teste via **Expo 
 - Les installs de deps natives passent par `npx expo install <pkg>` ; si le resolver npm bute (peer conflict), retomber sur `npm install --legacy-peer-deps <pkg>@<version attendue par expo>`.
 - Toute nouvelle dép native : vérifier la compat **SDK 54** (pas 55).
 
+## 2.ter ⚠️ TOUJOURS viser `www.apexcoach.app` (jamais l'apex)
+
+**Bug crash trouvé 21/06 :** l'apex `apexcoach.app` répond en **307 → `www.apexcoach.app`** sur les routes API. Un 307 **rejoue le body POST**, et la couche réseau **native iOS (Expo Go / New Architecture) crash** en suivant cette redirection (aucune trace JS — crash natif). Symptôme : l'app se ferme après un POST (ex. envoi email reset).
+- **Fix appliqué :** `API_URL` (constants), `.env`, `.env.example`, `eas.json` → tous sur `https://www.apexcoach.app`. `lib/api.ts` part désormais de la constante unique `API_URL` (plus de défaut `''`).
+- **Règle :** toute nouvelle URL réseau ou variable d'env doit utiliser **`www.`**. Vérifier avec `curl -s -o /dev/null -w "%{num_redirects}" <url>` → doit être `0`.
+- Diagnostic reproductible : instrumenter `apiFetch` (le dernier `console.log` avant le silence = appel natif fautif), un crash natif ne logge rien côté Metro.
+
+**Aussi corrigé :** `app.json` `newArchEnabled` était `false` alors que **reanimated 4 EXIGE la New Architecture** (Expo Go la force déjà ; un build EAS aurait cassé). Passé à `true`.
+
 ## 3. ⚠️ Règle critique apprise cette session
 
 **Le repo web est sur ce poste : `C:\Users\benta\Apex-Coach`** (routes `app/api/**/route.ts`, types, composants).

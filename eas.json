@@ -7,7 +7,7 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "",
-        "EXPO_PUBLIC_API_URL": "https://apexcoach.app"
+        "EXPO_PUBLIC_API_URL": "https://www.apexcoach.app"
       }
     },
     "preview": {
