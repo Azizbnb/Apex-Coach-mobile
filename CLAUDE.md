@@ -1,6 +1,6 @@
 # CLAUDE.md - Apex Coach Mobile (Expo)
 
-> **Version :** 1.4.0 — Refonte sprints S2-S5 sur la base du flow web (cf. docs/sprints/WEB_FLOW_AUDIT.md)
+> **Version :** 1.4.1 — Stack alignée Expo **SDK 54** (downgrade 21/06/2026). Refonte sprints S2-S5 sur la base du flow web (cf. docs/sprints/WEB_FLOW_AUDIT.md)
 > **Parent :** Ce projet est le client mobile natif d'Apex Coach. Le backend est documenté dans `C:\Users\benta\Apex-Coach\CLAUDE.md`.
 > **Source de vérité du flow :** [`docs/sprints/WEB_FLOW_AUDIT.md`](docs/sprints/WEB_FLOW_AUDIT.md) (audit web → mapping mobile, généré 2026-05-16). La spec mobile v2.0 n'est plus la référence active.
 > **Spec mobile historique :** `C:\Users\benta\Apex-Coach\docs\MOBILE_APP_TECHNICAL_SPEC_v2.md` (v2.0, 14 avril 2026 — gardée pour contexte, ne pas suivre aveuglément).
@@ -16,15 +16,15 @@ App mobile Expo qui consomme le même backend Next.js/Supabase que le web. **Zé
 
 | Catégorie | Technologie | Version |
 |-----------|-------------|---------|
-| **Framework** | Expo (managed workflow) | 55.0.6 |
-| **Runtime** | React Native | 0.83.2 |
-| **React** | React | 19.2.0 |
-| **Routing** | Expo Router (file-based) | 55.0.5 |
+| **Framework** | Expo (managed workflow) | 54.0.35 |
+| **Runtime** | React Native | 0.81.5 |
+| **React** | React | 19.1.0 |
+| **Routing** | Expo Router (file-based) | 6.0.24 |
 | **Langage** | TypeScript | 5.9 |
 | **Auth** | @supabase/supabase-js + expo-secure-store | 2.99.2 |
 | **State** | Zustand | 5.0.12 |
 | **UI/Styling** | NativeWind (Tailwind RN) | 4.2.3 |
-| **Animations** | react-native-reanimated | 4.2.2 |
+| **Animations** | react-native-reanimated (+ react-native-worklets 0.5) | 4.1.x |
 | **Formulaires** | React Hook Form + Zod | 7.71 / 4.3 |
 | **Icons** | lucide-react-native | 0.577 |
 | **Navigation** | Bottom Tabs + Stack + Modals | — |
@@ -476,6 +476,7 @@ Tous les bugs identifiés lors de l'audit Sprint 1 ont été corrigés :
 
 | Date | Version | Changements |
 |------|---------|-------------|
+| 21/06/2026 | 1.4.1 | **Downgrade SDK 55 → SDK 54** (alignement Expo Go store v54). Toute la stack repassée en versions SDK 54 via `expo install --fix` : Expo 54.0.35, React Native 0.81.5, React 19.1.0, Expo Router 6.0.24, reanimated ~4.1 + **react-native-worklets 0.5.1** (désormais dép explicite, plus transitive), gesture-handler ~2.28, webview 13.15, @sentry/react-native ~7.2, jest-expo/babel-preset-expo/eslint-config-expo/@types/react/react-test-renderer alignés. Validé : `tsc` clean, **197 tests verts**, `eslint` 0 erreur, `expo-doctor` 18/18, bundle Metro iOS OK (3717 modules). Réinstall propre (lockfile + node_modules régénérés, `--legacy-peer-deps`). |
 | 16/05/2026 | 1.4.0 | **Refonte sprints S2-S5 sur la base du flow web** : audit complet `docs/sprints/WEB_FLOW_AUDIT.md` (22 routes + 12 modals + 22 API + matrice composants par domaine), réécriture des 4 sprints — chaque ticket mirror un écran/modal web identifiable (référence `Apex-Coach/...`). Sprint 2 : tickets PR #29/#30/#31 consolidés `done` + 3 correctifs (drag-drop prep, modal vidéo embarqué, timer libre). Sprint 3 : 26 tickets (24 micro-steps questionnaire + redeem + paywall info + deep links + attribution). Sprint 4 : 20 tickets (bilan modal + analytics + settings complet + push + Sentry). Sprint 5 : 8 tickets publication. **Source de vérité** désormais = code web actuel, plus la spec v2.0. |
 | 04/05/2026 | 1.3.0 | **Setup complet écosystème mobile** : 10 skills (.claude/skills/apex-mobile-*) + 7 routines (docs/routines/MR1-MR7) + backlog Sprint 2-5 (53 tickets) + AUDIT_PHASE_0.md. Modèle économique = **App gratuite Netflix** (paiement uniquement web Stripe, 0% commission stores). Cycle vertueux 24/7 prêt à activer. |
 | 03/05/2026 | 1.2.0 | Audit Phase 0 (skills + routines mobile) : ref spec corrigée (v2.0), pricing aligné (Starter deprecated mais conservé legacy `hidden`), stack complète (React 19.2, reanimated 4.2.2), 5 sprints (vs 4), pointeur backlog. |

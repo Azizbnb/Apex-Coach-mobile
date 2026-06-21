@@ -21,6 +21,13 @@
 3. **Soumission TestFlight/Play Internal précoce** dès qu'un build conforme existe, polish en parallèle. **Cutoff review publique : 23 juin.**
 4. **Conformité Reader App** : zéro SDK paiement, zéro prix affiché, zéro mention Apple/Google.
 
+## 2.bis ⚠️ SDK Expo = **54** (aligné Expo Go store, 21/06/2026)
+
+Le projet a été **downgradé de SDK 55 → SDK 54** car Aziz teste via **Expo Go (store, v54)**. Toute la stack est en versions SDK 54 (cf. table CLAUDE.md §1 + changelog 1.4.1). **Ne PAS réintroduire de version SDK 55** (ni `expo install` qui remonterait — l'outil suit la version d'`expo` installée = 54, donc OK). Points de vigilance :
+- `react-native-worklets@0.5.1` est désormais une **dépendance explicite** (requise par reanimated 4 ; n'était que transitive en SDK 55). Ne pas la retirer.
+- Les installs de deps natives passent par `npx expo install <pkg>` ; si le resolver npm bute (peer conflict), retomber sur `npm install --legacy-peer-deps <pkg>@<version attendue par expo>`.
+- Toute nouvelle dép native : vérifier la compat **SDK 54** (pas 55).
+
 ## 3. ⚠️ Règle critique apprise cette session
 
 **Le repo web est sur ce poste : `C:\Users\benta\Apex-Coach`** (routes `app/api/**/route.ts`, types, composants).
