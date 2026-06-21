@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuthStore } from '@/stores/auth';
 import { useSubscriptionStore } from '@/stores/subscription';
 import { BACKGROUND_COLOR } from '@/lib/constants';
@@ -49,9 +50,10 @@ function RootLayout() {
   }
 
   return (
-    <AppErrorBoundary>
-      <StatusBar style="light" />
-      <Stack
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppErrorBoundary>
+        <StatusBar style="light" />
+        <Stack
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: BACKGROUND_COLOR },
@@ -69,8 +71,9 @@ function RootLayout() {
             animation: 'slide_from_bottom',
           }}
         />
-      </Stack>
-    </AppErrorBoundary>
+        </Stack>
+      </AppErrorBoundary>
+    </GestureHandlerRootView>
   );
 }
 

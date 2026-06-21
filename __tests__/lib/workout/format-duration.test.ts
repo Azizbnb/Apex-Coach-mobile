@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { formatStopwatch } from '@/lib/workout/format-duration';
+import { formatStopwatch, formatRest } from '@/lib/workout/format-duration';
 
 describe('formatStopwatch', () => {
   it('formate 0 en 00:00', () => {
@@ -31,5 +31,28 @@ describe('formatStopwatch', () => {
     expect(formatStopwatch(-10)).toBe('00:00');
     expect(formatStopwatch(NaN)).toBe('00:00');
     expect(formatStopwatch(Infinity)).toBe('00:00');
+  });
+});
+
+describe('formatRest', () => {
+  it('affiche les secondes seules sous la minute', () => {
+    expect(formatRest(45)).toBe('45s');
+    expect(formatRest(59)).toBe('59s');
+  });
+
+  it('affiche les minutes rondes en "X min"', () => {
+    expect(formatRest(60)).toBe('1 min');
+    expect(formatRest(120)).toBe('2 min');
+  });
+
+  it('affiche les durées mixtes en "XmYYs"', () => {
+    expect(formatRest(90)).toBe('1m30s');
+    expect(formatRest(125)).toBe('2m5s');
+  });
+
+  it('sécurise 0, négatif et non fini', () => {
+    expect(formatRest(0)).toBe('0s');
+    expect(formatRest(-5)).toBe('0s');
+    expect(formatRest(NaN)).toBe('0s');
   });
 });

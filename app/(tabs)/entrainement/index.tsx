@@ -33,6 +33,7 @@ export default function WorkoutScreen() {
     skipExercise,
     completeCooldown,
     resetSession,
+    reorderExercises,
   } = useWorkout();
 
   const [tipVisible, setTipVisible] = useState(false);
@@ -147,6 +148,7 @@ export default function WorkoutScreen() {
           sessionLabel={sessionLabel}
           exercises={currentWorkout.exercises}
           onStart={startExercises}
+          onReorder={reorderExercises}
         />
       )}
 

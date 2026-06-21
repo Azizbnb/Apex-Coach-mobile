@@ -25,3 +25,21 @@ export function formatStopwatch(totalSeconds: number): string {
   }
   return `${mm}:${ss}`;
 }
+
+/**
+ * Formate un temps de repos en libellé court et lisible.
+ *
+ * - `< 60s`        → `45s`
+ * - `>= 60s` rond  → `2 min`
+ * - `>= 60s` mixte → `1m30s`
+ */
+export function formatRest(seconds: number): string {
+  const safe =
+    Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds) : 0;
+  if (safe >= 60) {
+    const m = Math.floor(safe / 60);
+    const s = safe % 60;
+    return s === 0 ? `${m} min` : `${m}m${s}s`;
+  }
+  return `${safe}s`;
+}
