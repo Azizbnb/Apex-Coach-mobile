@@ -5,12 +5,14 @@ import { SafeView } from '@/components/ui/SafeView';
 import { WeekCard } from '@/components/programme/WeekCard';
 import { TrialBanner } from '@/components/subscription/TrialBanner';
 import { PromoExpiryBanner } from '@/components/subscription/PromoExpiryBanner';
+import { BilanDueBanner } from '@/components/bilan/BilanDueBanner';
 import { useProgramStore } from '@/stores/program';
 import { useSubscriptionStore } from '@/stores/subscription';
 import {
   isWeekUnlocked,
   shouldApplyProgressiveUnlock,
   getUnlockDateForWeek,
+  getProgressiveUnlockInfo,
 } from '@/lib/subscription/progressive-unlock';
 import { isAIProgramData } from '@/lib/programs/adapter';
 import { colors } from '@/lib/constants';
@@ -73,6 +75,11 @@ export default function ProgrammeScreen() {
 
   const isProgressive = shouldApplyProgressiveUnlock(currentPlanId);
 
+  // Semaine en cours (progressive unlock) pour piloter la bannière bilan.
+  const currentWeek = startDate
+    ? getProgressiveUnlockInfo(startDate).currentWeek
+    : undefined;
+
   return (
     <SafeView>
       <ScrollView
@@ -82,6 +89,8 @@ export default function ProgrammeScreen() {
         {/* Banners conversion (s'auto-masquent hors trial/promo) */}
         <TrialBanner />
         <PromoExpiryBanner />
+        {/* Bannière bilan (s'auto-masque si semaine non complétée / bilan déjà fait) */}
+        <BilanDueBanner weekNumber={currentWeek} />
 
         <Text className="text-2xl font-bold text-white mb-2">
           {program.title || 'Mon Programme'}

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase/client';
 import { profileApi, apiFetch } from '@/lib/api';
+import { useSettingsStore } from '@/stores/settings';
 import type { Session, User } from '@supabase/supabase-js';
 import type { Subscription as SupabaseSubscription } from '@supabase/supabase-js';
 import type { UserProfile } from '@/types';
@@ -19,6 +20,8 @@ interface AuthState {
   resetPassword: (email: string) => Promise<void>;
   fetchProfile: () => Promise<void>;
   setSession: (session: Session | null) => void;
+  /** Met à jour localement le nom du profil (après PATCH /api/profile/name). */
+  setProfileName: (name: string) => void;
 }
 
 // Store the auth subscription outside Zustand for cleanup
@@ -94,6 +97,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await supabase.auth.signOut();
       set({ user: null, session: null, profile: null });
+      // Purge les préférences locales (jeûne, notifs) au logout
+      useSettingsStore.getState().reset();
     } finally {
       set({ loading: false });
     }
@@ -121,5 +126,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       session,
       user: session?.user ?? null,
     });
+  },
+
+  setProfileName: (name: string) => {
+    const { profile } = get();
+    if (profile) {
+      set({ profile: { ...profile, full_name: name } });
+    }
   },
 }));

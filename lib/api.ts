@@ -13,6 +13,8 @@ import type {
   NutritionPreferences,
   NutritionPlan,
   ExerciseVideoData,
+  Review,
+  ReviewTag,
 } from '@/types';
 
 // ============================================
@@ -104,6 +106,38 @@ export const profileApi = {
       .select()
       .single();
     if (error) throw new ApiError(500, error.message);
+    return data;
+  },
+
+  /**
+   * Renommer l'utilisateur — PATCH /api/profile/name (NameUpdateSchema côté web :
+   * 2-100 caractères, lettres/espaces/tirets/apostrophes). Le serveur met à jour
+   * `user_profiles.full_name` + les métadonnées Auth, et renvoie le nom normalisé.
+   */
+  async updateName(name: string): Promise<string> {
+    const data = await apiFetch<{ name: string }>('/profile/name', {
+      method: 'PATCH',
+      body: JSON.stringify({ name }),
+    });
+    return data?.name ?? name;
+  },
+};
+
+// --- Objectif (changement unique post-programme) ---
+// Route web : POST /api/user/change-objective (ChangeObjectiveSchema).
+// Archive le programme actif et met en file un nouveau programme (génération ~2 min).
+
+export interface ChangeObjectiveResult {
+  newProgramId: string;
+  estimatedMinutes: number;
+}
+
+export const objectiveApi = {
+  async change(payload: Record<string, unknown>): Promise<ChangeObjectiveResult> {
+    const data = await apiFetch<ChangeObjectiveResult>('/user/change-objective', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
     return data;
   },
 };
@@ -252,6 +286,43 @@ export const affiliateApi = {
 export const reviewsApi = {
   async getPublic(page = 1) {
     return apiFetch(`/reviews/public?page=${page}`);
+  },
+
+  /**
+   * Tags d'avis disponibles — GET /api/reviews/tags (public).
+   * Renvoie les tags actifs triés par usage décroissant.
+   */
+  async getTags(): Promise<ReviewTag[]> {
+    const data = await apiFetch<{ tags: ReviewTag[] }>('/reviews/tags');
+    return data?.tags ?? [];
+  },
+
+  /**
+   * Avis de l'utilisateur connecté (tous statuts) — GET /api/reviews/mine.
+   * Renvoie le plus récent en premier ; on expose le premier comme "mon avis".
+   */
+  async getMine(): Promise<Review | null> {
+    const data = await apiFetch<{ reviews: Review[] }>('/reviews/mine');
+    return data?.reviews?.[0] ?? null;
+  },
+
+  /**
+   * Création d'un avis — POST /api/reviews/create (CreateReviewSchema :
+   * rating 1-5, comment 10-1000, tags 1-3). `source` par défaut 'organic'
+   * côté serveur. Renvoie l'avis créé (statut 'pending').
+   * Note : pas de route d'update — un nouvel avis remplace l'ancien à l'approbation.
+   */
+  async create(input: {
+    rating: number;
+    comment: string;
+    tags: string[];
+    source?: string;
+  }): Promise<Review> {
+    const data = await apiFetch<{ review: Review }>('/reviews/create', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+    return data.review;
   },
 };
 

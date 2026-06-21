@@ -6,6 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuthStore } from '@/stores/auth';
 import { useSubscriptionStore } from '@/stores/subscription';
+import { useSettingsStore } from '@/stores/settings';
 import { BACKGROUND_COLOR } from '@/lib/constants';
 import { initSentry, setSentryUser, withSentry } from '@/lib/monitoring/sentry';
 import { AppErrorBoundary } from '@/components/monitoring/AppErrorBoundary';
@@ -44,6 +45,13 @@ function RootLayout() {
   useEffect(() => {
     setSentryUser({ userId, plan: userPlan });
   }, [userId, userPlan]);
+
+  // Hydrate les préférences (jeûne serveur + prefs locales) une fois connecté
+  useEffect(() => {
+    if (userId) {
+      void useSettingsStore.getState().hydrate();
+    }
+  }, [userId]);
 
   if (!initialized) {
     return null;

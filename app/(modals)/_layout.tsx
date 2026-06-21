@@ -15,6 +15,18 @@ export default function ModalLayout() {
       <Stack.Screen name="session-complete" />
       <Stack.Screen name="paywall" />
       <Stack.Screen
+        name="bilan-formulaire"
+        options={{ presentation: 'fullScreenModal' }}
+      />
+      <Stack.Screen
+        name="change-objective"
+        options={{ presentation: 'fullScreenModal' }}
+      />
+      <Stack.Screen
+        name="leave-review"
+        options={{ presentation: 'fullScreenModal' }}
+      />
+      <Stack.Screen
         name="rest-timer"
         options={{ presentation: 'fullScreenModal' }}
       />
