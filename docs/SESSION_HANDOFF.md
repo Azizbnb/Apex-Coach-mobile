@@ -1,6 +1,6 @@
 # Handoff de session — Apex Coach Mobile
 
-> **Dernière mise à jour :** 21 juin 2026
+> **Dernière mise à jour :** 21 juin 2026 (soir — Sprint 4 bilan/profil/settings via orchestration multi-agents)
 > **But :** reprendre le travail sans perte de contexte dans une nouvelle session.
 > **Branche de travail :** `sprint-final-mobile` (poussée sur `origin`, tracking actif).
 > **Deadline :** **30 juin 2026** — build production soumis aux 2 stores.
@@ -65,6 +65,31 @@ Fichier mock test important : `__mocks__/react-native-reanimated.js` expose dés
 
 ---
 
+## 4.bis Fait session 21/06 (soir) — orchestration multi-agents (2 commits)
+
+Workflow : 2 vagues de sous-agents parallèles (fichiers neufs, vérif endpoints contre le repo web), intégration + gates au centre. **295 tests verts (49 suites), tsc + eslint clean, zéro `as any`.**
+
+| Domaine | Détail | Tickets |
+|---------|--------|---------|
+| **Boucle Bilan** | `lib/validations/bilan.ts` (mirror `FeedbackSchema`), `BilanForm` 5 sections, `PainZonesPicker`, modal `(modals)/bilan-formulaire`, `BilanDueBanner` (monté dans Programme), `AdaptationProgress` + `usePollAdaptation` | S4-T01/T02/T03 |
+| **Tab Bilan** | `(tabs)/bilan/index.tsx` consolidé : Overview + Historique (détail inline) + Analytics gated Pro | S4-T04 |
+| **Analytics** | `TrendCharts`/`WellnessRadar`/`PainZonesChart` (react-native-svg pur, zéro dép) + `lib/analytics/aggregate.ts` | S4-T05 |
+| **Profil** | `(tabs)/profile/index.tsx` refondu (header + nom inline + stats IMC + abonnement + réglages + footer légal) + `components/profile/*` | S4-T06 |
+| **Settings** | `stores/settings.ts` + `useSettings`, `FastingToggleForm` (PATCH /api/profile/fasting), `ChangePasswordForm`, `change-objective` modal | S4-T07/T08/T09/T17 |
+| **Avis** | `ReviewSection` + modal `leave-review` (POST /api/reviews/create, GET /api/reviews/mine) | S4-T13 |
+
+**⚠️ Corrections de spec découvertes (le doc sprint était faux) :**
+- `programs.adaptation_status` **n'existe pas**. L'adaptation hebdo (`POST /api/program/adapt`) est **synchrone** (réponse inline). Seules les fins de cycle (semaine %4==0) partent en async via RPC `enqueue_cycle_job`. Signal de complétion bilan = `program_feedback.suggestions_applied`.
+- Contrat jeûne réel = `PATCH /api/profile/fasting { is_fasting_mode, fasting_level: strict|moderate|light, fasting_start_date, fasting_end_date, fasting_notes }` (période datée + niveau, PAS window/jours).
+- Avis : pas de route update web → "Modifier" recrée un avis (cohérent web). `CreateReviewSchema` borne le comment à **10-1000** (pas 300).
+
+**Points à valider sur device réel :**
+- `change-objective` : `usePollProgramReady` suit `programs.status` (READY_STATUSES ajustable) — confirmer le statut "prêt" du nouveau programme côté schéma.
+- Tab Bilan "bilan complété" se base sur `feedbacks.some(week_number === currentWeek)` ; vérifier que le `week_number` stocké == semaine calculée par progressive-unlock.
+- `S4-T10 NotificationsForm` **non fait** : `expo-notifications` absent du projet (dép native non ajoutée). Le store `settings` expose déjà `notificationPrefs` + `toggleNotification` pour brancher l'UI quand la dép sera ajoutée (= prérequis S4-T15/T16 push).
+
+---
+
 ## 5. Reste à faire (par priorité)
 
 ### A. Avant le premier build/TestFlight
@@ -81,7 +106,11 @@ Fichier mock test important : `__mocks__/react-native-reanimated.js` expose dés
    - Reste : config deep links restante (`lib/deep-linking.ts` squelette pour referral/affiliate + universal links `applinks:apexcoach.app` côté app + AASA web Sprint 5), attribution (Apple Search Ads + Play Referrer).
 
 ### C. Sprint 4 restant
-4. Profil complet (S4-T06), modals settings (objectif, jeûne, mot de passe, notifications, avis), bilan modal + tab Bilan + analytics, push notifications + store settings.
+4. ✅ **Profil complet, settings (objectif/jeûne/mot de passe/avis), bilan modal + Tab Bilan + analytics, store settings — FAITS** (cf. §4.bis).
+   Reste Sprint 4 :
+   - **Push notifications (S4-T15/T16/T10)** : nécessite d'ajouter `expo-notifications` (compat SDK 54) + plugin app.json + credentials EAS (APN/FCM). Bloqué tant que la dép n'est pas ajoutée. NotificationsForm UI prête à brancher (store déjà fait).
+   - **S4-T18 polish** : `AppErrorBoundary` existe déjà ; reste `EmptyState`/`LoadingScreen` templates + `NotificationHandler` (lié au push).
+   - **S4-T19 animations polish** + **S4-T20 QA devices réels** (EAS preview).
 
 ### D. Sprint 5 — publication
 5. `eas.json` prod (corriger `serviceAccountKeyPath` → vraie clé service account, pas `google-services.json`), `.well-known` (apple-app-site-association + assetlinks.json) côté **repo web**, ASO iOS+Android, build+submit, buffer review.
