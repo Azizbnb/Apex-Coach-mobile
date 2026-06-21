@@ -84,11 +84,11 @@
 
 ## Phasage de l'activation
 
-**État actuel (16/05/2026) :** 3 routines actives (`MR1`, `MR2`, `MR8`). Activation des 5 restantes (`MR3`, `MR4`, `MR5`, `MR6`, `MR7`) planifiée dans [`ACTIVATION_PLAN_MR3-MR7.md`](ACTIVATION_PLAN_MR3-MR7.md) (validé 16/05/2026).
+**État actuel (17/05/2026) :** 6 routines actives (`MR1`, `MR2`, `MR4`, `MR5`, `MR6`, `MR8`). Activation des 2 restantes (`MR3` Visual QA, `MR7` Web Sync) à planifier suivant [`ACTIVATION_PLAN_MR3-MR7.md`](ACTIVATION_PLAN_MR3-MR7.md) (Phases 0, 1, 2, 4.1 validées).
 
 Ordre d'activation (risque croissant) :
 
-1. **Phase 0** : vérification pré-requis (Playwright, EAS_TOKEN, repo web clonable, branch protection) — read-only
+1. **Phase 0** : vérification pré-requis — ✅ **Effectuée 2026-05-17** ([`PREREQUISITES_CHECK.md`](PREREQUISITES_CHECK.md)). 5/5 routines activables (`EXPO_TOKEN` persisté côté Cowork).
 2. **Phase 1 — pilote** : `MR6` Sentry Triage seule, 48h observation (zéro risque, écrit seulement des commentaires)
 3. **Phase 2** : `MR4` Code Review (review-only, sur PRs ouvertes)
 4. **Phase 3** : `MR3` Visual QA (Playwright + Expo Web)
@@ -113,14 +113,20 @@ Ordre d'activation (risque croissant) :
 
 ## Pré-requis techniques
 
-| Prérequis | Statut | Bloque |
-|-----------|--------|--------|
+> ✅ **Phase 0 du plan d'activation effectuée le 2026-05-17** sur machine locale Aziz — résultats détaillés dans [`PREREQUISITES_CHECK.md`](PREREQUISITES_CHECK.md). Re-vérification résiduelle côté `code.claude.ai` requise avant chaque CronCreate (cf. §"Vérification résiduelle" du fichier).
+
+| Prérequis | Statut local 2026-05-17 | Bloque |
+|-----------|-------------------------|--------|
+| Node 20+ / npx / gh CLI authentifié | ✅ Node 20.20.0, gh 2.82.0 scopes `repo, gist, read:org` | — |
+| Playwright (`npx playwright`) | ✅ v1.60.0 auto-install | MR3 |
+| Expo CLI Web (`npx expo --version`) | ✅ 55.0.16 | MR3 |
+| EAS CLI (`npx eas-cli`) | ✅ 18.13.0 via npx | MR5 |
+| **`EXPO_TOKEN`** persisté dans `~/.bashrc` env Cowork | ✅ Fait 2026-05-17 (compte Expo `aziiz.bnb`) | MR5 |
+| Labels `sentry`, `triaged-by-mr6`, `auto-qa`, `weekly-build`, `sync-conflict`, `from-mr7` | ✅ Tous présents sur repo mobile | MR3/MR4/MR5/MR6/MR7 |
+| Repo web `Azizbnb/Apex-Coach` (PRIVATE) accessible | ✅ `git ls-remote HEAD` OK via token gh actuel | MR7 |
+| Branch protection `claude/main` mobile | ⚠️ Non configurée (HTTP 404) | non-bloquant pilote, à activer avant Phase 5 |
 | Workflow `sentry-to-github.yml` côté repo mobile | ❌ à créer Sprint 4 | MR6 (idempotente, OK en attendant) |
 | Sentry projet mobile + DSN dans EAS env | ❌ à créer Sprint 4 (S4-T12) | MR6 (idempotente, OK) |
-| Playwright dans l'env code.claude.ai | À vérifier | MR3 |
-| EAS_TOKEN configuré | À fournir par utilisateur | MR5 |
-| Repo web clonable depuis env code.claude.ai | À vérifier | MR7 |
-| Branch protection `claude/main` | À configurer | toute la chaîne |
 
 ---
 

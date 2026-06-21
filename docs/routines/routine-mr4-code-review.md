@@ -1,6 +1,6 @@
 # Claude Code Routine MR4 — Code Review Mobile
 
-> **Version :** 1.3.0 — 08/05/2026 (v1.2 → v1.3 : ajout du vendredi, synchronisé avec MR2 v1.1.0)
+> **Version :** 1.3.0 — 08/05/2026 (v1.2 → v1.3 : ajout du vendredi, synchronisé avec MR2 v1.1.0). Activée 2026-05-17 en Phase 2 du plan MR3-MR7. Trigger ID `trig_01PJQtJhHcJSyXUFF9xA4Fa3`, model `claude-opus-4-7[1m]`.
 > **Schedule :** `30 6,14 * * 1-5` — Lun→Ven 06:30 + 14:30 UTC (= 08:30 + 16:30 Paris CEST). 30 min après chaque cron MR2 pour reviewer la PR fraîchement ouverte.
 > **Fréquence :** 10 runs/semaine (5 jours × 2 runs).
 > **Latence max** : ~30-60 min entre l'ouverture de PR par MR2 et le commentaire MR4.

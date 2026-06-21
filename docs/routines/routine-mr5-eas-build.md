@@ -1,8 +1,9 @@
 # Claude Code Routine MR5 — EAS Build Preview Mobile
 
-> **Version :** 1.0.0 — 04/05/2026
-> **Schedule :** vendredi 18:00 (Europe/Paris) — `0 18 * * 5`
+> **Version :** 1.0.0 — 04/05/2026 (activée en Phase 4.1 du plan MR3-MR7, anticipée)
+> **Schedule :** vendredi `0 17 * * 5` UTC (= 19:00 Paris CEST). Trigger ID `trig_015wK9NkikC6aRkVyGYJDGF6` enregistré côté code.claude.ai le 2026-05-17.
 > **Routine name :** `apex-mobile-eas-build`
+> **Token :** `EXPO_TOKEN` chargé depuis `~/.bashrc` de l'env Cowork (persisté le 2026-05-17 via one-shot `setup-expo-token-once`).
 > **Output :** 1 build EAS preview iOS + 1 build EAS preview Android, lien drop dans une issue GitHub label `weekly-build`.
 > **Architecture :** Bash + EAS CLI (`eas build`) + `gh issue create`. Pas de fichier code modifié.
 > **Cap budget :** **1 build/semaine max**, profile `preview` uniquement. Submit TestFlight/Play **manuel par toi** — MR5 ne soumet jamais.

@@ -58,6 +58,21 @@ export interface Exercise {
   notes?: string
 }
 
+/**
+ * Démo vidéo d'un exercice (MuscleWiki).
+ * Mirror du web `lib/musclewiki/client.ts` → `ExerciseVideo`.
+ * - `videoType: 'youtube'` → `videoUrl` est une URL absolue d'embed (iframe)
+ * - `videoType: 'proxy'`   → `videoUrl` est un chemin RELATIF
+ *   `/api/exercises/video-proxy?url=...` (à préfixer par l'API_URL côté mobile)
+ */
+export interface ExerciseVideoData {
+  videoUrl: string
+  videoType: 'youtube' | 'proxy'
+  thumbnailUrl: string | null
+  muscles: string[]
+  nameEn: string
+}
+
 export interface NutritionPlan {
   id: string
   user_id: string

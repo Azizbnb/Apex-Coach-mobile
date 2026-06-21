@@ -11,6 +11,7 @@ import type {
   Subscription,
   NutritionPreferences,
   NutritionPlan,
+  ExerciseVideoData,
 } from '@/types';
 
 // ============================================
@@ -247,6 +248,23 @@ export const affiliateApi = {
 export const reviewsApi = {
   async getPublic(page = 1) {
     return apiFetch(`/reviews/public?page=${page}`);
+  },
+};
+
+// --- Exercices (démo vidéo MuscleWiki) ---
+// Route web existante : GET /api/exercises/video?name=<nom>
+// → { success: true, video: ExerciseVideoData | null }. Aucune logique backend ajoutée.
+
+export const exercisesApi = {
+  /**
+   * Récupère la démo vidéo d'un exercice par son nom (recherche MuscleWiki
+   * côté serveur, cache 1h). Renvoie `null` si aucune vidéo n'est trouvée.
+   */
+  async getVideo(name: string): Promise<ExerciseVideoData | null> {
+    const data = await apiFetch<{ video: ExerciseVideoData | null }>(
+      `/exercises/video?name=${encodeURIComponent(name)}`
+    );
+    return data?.video ?? null;
   },
 };
 

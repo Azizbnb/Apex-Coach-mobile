@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { View, TextInput, ScrollView, Pressable } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import * as WebBrowser from 'expo-web-browser';
 import { Play, Zap, Info, ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { ExerciseVideoModal } from '@/components/workout/ExerciseVideoModal';
 import { colors } from '@/lib/constants';
 import type { AIExercise } from '@/lib/programs/adapter';
 
@@ -17,7 +16,6 @@ interface ExerciseViewProps {
   /** Index global de l'exercice (1-based, ex: "Exercice 2 / 5") */
   currentIndex: number;
   totalExercises: number;
-  videoUrl?: string;
   onValidate: (data: { reps: number; weight?: number }) => void;
   onSkip: () => void;
   onPrev?: () => void;
@@ -43,12 +41,12 @@ export function ExerciseView({
   currentSet,
   currentIndex,
   totalExercises,
-  videoUrl,
   onValidate,
   onSkip,
   onPrev,
   onShowTip,
 }: ExerciseViewProps) {
+  const [videoOpen, setVideoOpen] = useState(false);
   const repsTarget = exercise.reps;
   // Pour l'input "reps réalisées" : on prend la première valeur numérique du target
   const initialReps = (() => {
@@ -81,10 +79,6 @@ export function ExerciseView({
     onValidate({ reps, weight });
   };
 
-  const handleDemoPress = async () => {
-    if (!videoUrl) return;
-    await WebBrowser.openBrowserAsync(videoUrl);
-  };
 
   return (
     <View className="flex-1">
@@ -113,23 +107,21 @@ export function ExerciseView({
           {exercise.exercise_name}
         </Text>
 
-        {/* Bouton Démo (optionnel) */}
-        {videoUrl && (
-          <View className="items-center mb-6">
-            <Pressable
-              onPress={handleDemoPress}
-              accessibilityRole="link"
-              accessibilityLabel={`Voir la démo de ${exercise.exercise_name}`}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              className="flex-row items-center gap-2 bg-apex-lime-500/15 border border-apex-lime-500/30 rounded-full px-4 py-2 active:opacity-70"
-            >
-              <Play size={14} color={colors.lime[500]} fill={colors.lime[500]} />
-              <Text variant="caption" className="text-apex-lime-500 font-semibold">
-                Démo
-              </Text>
-            </Pressable>
-          </View>
-        )}
+        {/* Bouton Démo → modal vidéo in-app (fetch paresseux par nom) */}
+        <View className="items-center mb-6">
+          <Pressable
+            onPress={() => setVideoOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={`Voir la démo de ${exercise.exercise_name}`}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            className="flex-row items-center gap-2 bg-apex-lime-500/15 border border-apex-lime-500/30 rounded-full px-4 py-2 active:opacity-70"
+          >
+            <Play size={14} color={colors.lime[500]} fill={colors.lime[500]} />
+            <Text variant="caption" className="text-apex-lime-500 font-semibold">
+              Démo
+            </Text>
+          </Pressable>
+        </View>
 
         {/* Gros chiffre reps */}
         <View className="items-center mb-3">
@@ -268,6 +260,12 @@ export function ExerciseView({
           <ChevronRight size={16} color={colors.black[400]} />
         </Pressable>
       </View>
+
+      <ExerciseVideoModal
+        visible={videoOpen}
+        exerciseName={exercise.exercise_name}
+        onClose={() => setVideoOpen(false)}
+      />
     </View>
   );
 }

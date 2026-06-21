@@ -1,7 +1,7 @@
 # Claude Code Routine MR6 — Sentry Triage Mobile
 
-> **Version :** 1.0.0 — 04/05/2026 (pilote — la 1re routine mobile activée, faible risque)
-> **Schedule :** quotidien à 07:00 (Europe/Paris) — `0 7 * * *`
+> **Version :** 1.0.0 — 04/05/2026 (pilote — 1re routine activée en Phase 1 du plan MR3-MR7)
+> **Schedule :** quotidien `0 6 * * *` UTC (= 08:00 Paris CEST). Trigger ID `trig_01RhJJ8uQCj7LmQJDRNktwsE` enregistré côté code.claude.ai le 2026-05-17.
 > **Routine name :** `apex-mobile-sentry-triage`
 > **Output :** commentaire structuré "plan AVANT fix" sur chaque issue GitHub mobile non triagée, label `triaged-by-mr6` ajouté.
 > **Architecture :** Bash + `gh` + Sentry tag parsing. Multi-fichiers fragmentés non requis (1 commentaire par issue, pas de gros fichier).
